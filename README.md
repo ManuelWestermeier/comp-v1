@@ -12,8 +12,10 @@ all pockets are split into chunks: `[NAME=VALUE|LENGTH]`.
 - NAME is the name of the chunk
 - VALUE is the value or the default value of the chunk
 - LENGTH is the length of the chunk. It is xB = x Bytes or xBit = x Bits
-- VALUE x (PASSWORD + SALT) means that the value is encrypted by the password and salt
+- `VALUE x (PASSWORD + SALT)` means that the value is encrypted by the password and salt
 - `( (NAME=VALUE|LENGTH) + (NAME=VALUE|LENGTH) )` means a concatenation of smaller chunks
+
+the default is:
 
 ```css
  [HIGH] [FUNCTION=x|1B] ... [LOW]
