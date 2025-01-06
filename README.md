@@ -1,5 +1,14 @@
 # Networking Protocol V1
 
+This is a multigroup encrypted _Networking Protocol_.
+Every user can pullup the connection `[HIGH]` or do nothing.
+The bits are send every 1000 microseconds and then oranized to bytes.
+These bytes are organized to Pockets and parsed.
+All Pockets start with a `[HIGH]` pulse and comes the binary representation.
+At first comes the function (8 bits). It says the connections of what type the pocket is.
+After the Pocket comes a `[LOW]` pulse. It is that the next beginning of the next pocket can be identified.
+The connection is via 433Mhz sender & recievers.
+
 ### Pockets
 
 Every pocket follows this concept:
@@ -63,4 +72,22 @@ the default is:
 
 ```css
 [HIGH] [FUNCTION=6|1B] [GROUP_ID|2B] /*everything after here is encrypted using password & salt from before*/ [USER_ID|2B] [USER_DESTINATION|2B] [DATA_LENGTH=L|1B] [HASH|4B] [DATA=...|LB] [LOW]
+```
+
+#### SEND TO MULTIBLE USERS
+
+```css
+[HIGH] [FUNCTION=7|1B] [GROUP_ID|2B] /*everything after here is encrypted using password & salt from before*/ [USER_ID|2B] [USERS_LENGTH=L|2B] [USER_DESTINATIONS=...|L*2B] [DATA_LENGTH=L|1B] [HASH|4B] [DATA=...|LB] [LOW]
+```
+
+#### BRODCAST INNER GROUP
+
+```css
+[HIGH] [FUNCTION=8|1B] [GROUP_ID|2B] /*everything after here is encrypted using password & salt from before*/ [USER_ID|2B] [DATA_LENGTH=L|1B] [HASH|4B] [DATA=...|LB] [LOW]
+```
+
+#### BRODCAST INNER NETWORK
+
+```css
+[HIGH] [FUNCTION=7|1B] [GROUP_ID|2B] [DATA_LENGTH=L|1B] [HASH|4B] [DATA=...|LB] [LOW]
 ```
