@@ -25,6 +25,28 @@ This is a multigroup encrypted **Networking Protocol** designed for communicatio
     - Devices use the time since the last packet's transmission to wait for a random interval between 1000 and 50000 microseconds before attempting to pull the connection `HIGH`.
     - If the line stays `LOW`, the sender may proceed to transmit a packet.
 
+# Network Hierarchy
+
+```plaintext
+NETWORK
+  ├── GROUP 1
+  │     ├── USER 1
+  │     ├── USER 2
+  │     └── USER 3
+            ...
+  ├── GROUP 2
+  │     ├── USER 27224
+  │     └── USER 2885
+            ...
+  └── GROUP 3
+        ├── USER 6
+        ├── USER 7
+        |── USER 8
+        └── USER 9
+            ...
+  ...
+```
+
 ### Packet Format
 
 Each packet follows a structured format:
