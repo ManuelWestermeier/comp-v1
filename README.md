@@ -104,8 +104,6 @@ Confirms the group's existence.
 
 No response if the group is not present (timeout: 1-2 seconds).
 
----
-
 #### **3\. JOIN**
 
 Request to join a group.
@@ -158,7 +156,3 @@ Broadcast data to all devices in the network.
 - **Encryption**: Sensitive data fields are encrypted using a combination of a password and a salt.
 
 This protocol ensures secure and reliable communication across multiple devices.
-
-```
-
-```
