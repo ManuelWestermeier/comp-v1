@@ -1,62 +1,120 @@
 # Networking Protocol V1
 
-### Pockets
+This is a multigroup encrypted **Networking Protocol** designed for communication using 433 MHz transmitters and receivers.
 
-Every pocket follows this concept:
+### Overview
 
-- `[HIGH]` are impulses that shows the start of the pocket. After the pocket the connection is pulled `[LOW]`.
-- `[FUNCTION]` is a fixed length 1 byte integer representing the function being performed.
+- **Signal States**: The connection can either be pulled `HIGH` (active) or remain `LOW` (idle).
+- **Transmission Timing**:
+  - Each bit is sent every 1000 microseconds.
+  - Bits are grouped into bytes, which are further organized into packets.
+- **Packet Structure**:
+  - Each packet begins with a `[HIGH]` signal to mark its start.
+  - The packet data contains binary representations of various fields.
+  - Packets end with a `[LOW]` signal, indicating the next packet's beginning.
 
-all pockets are split into chunks: `[NAME=VALUE|LENGTH]`.
+### Packet Transmission Rules
 
-- NAME is the name of the chunk
-- VALUE is the value or the default value of the chunk
-- LENGTH is the length of the chunk. It is xB = x Bytes or xBit = x Bits
-- VALUE x (PASSWORD + SALT) means that the value is encrypted by the password and salt
-- `( (NAME=VALUE|LENGTH) + (NAME=VALUE|LENGTH) )` means a concatenation of smaller chunks
+1.  **Start Conditions**:
 
-```css
- [HIGH] [FUNCTION=x|1B] ... [LOW]
-```
+    - To send a packet, the sender ensures the connection remains `LOW` for a specified _max send time_.
+    - If the connection goes `HIGH` during this period, the sender must retry.
 
-#### IS HERE
+2.  **Collision Avoidance**:
 
-```css
-[HIGH] [FUNCTION=1|1B] [ANSWERID=random()|1B] [GROUP_NAME_LENGTH=L|1B] [GROUP_NAME_STRING=...|LB] [HASH|1B] [LOW]
-```
+    - Devices use the time since the last packet's transmission to wait for a random interval between 1000 and 50000 microseconds before attempting to pull the connection `HIGH`.
+    - If the line stays `LOW`, the sender may proceed to transmit a packet.
 
-#### HERE IS
+### Packet Format
+
+Each packet follows a structured format:
+
+- `[HIGH]`: Marks the start of the packet.
+- `[FUNCTION=x|1B]`: A fixed 1-byte field defining the packet's purpose.
+- Additional fields are specified in a `NAME=VALUE|LENGTH` format:
+  - **NAME**: Field name.
+  - **VALUE**: Field value or its default value.
+  - **LENGTH**: Field size, expressed as `xB` (bytes) or `xBit` (bits).
+  - Encrypted values are denoted as `VALUE x (PASSWORD + SALT)`.
+  - Fields may consist of concatenated chunks.
+
+Example:
+
+`[HIGH] [FUNCTION=x|1B] ... [LOW]`
+
+---
+
+### Packet Types
+
+#### **1\. IS HERE**
+
+Used to discover network groups.
+
+`[HIGH] [FUNCTION=1|1B] [ANSWER_ID=random()|1B] [GROUP_NAME_LENGTH=L|1B] [GROUP_NAME_STRING=...|LB] [HASH|1B] [LOW]`
+
+#### **2\. HERE IS**
 
 ##### YES
 
-```css
-[HIGH] [FUNCTION=2|1B] [ANSWERID=ANSWER_ID_FROM_IS_HERE_POCKET|1B] [GROUP_ID=GROUP_ID|2B] [CONNECT_ID=1B] [VERIFY_BYTE=1B] [SALT=random()|1B] [HASH|2B] [LOW]
-```
+Confirms the group's existence.
+
+`[HIGH] [FUNCTION=2|1B] [ANSWER_ID|1B] [GROUP_ID|2B] [CONNECT_ID|1B] [VERIFY_BYTES|2B] [SALT=random()|1B] [HASH|2B] [LOW]`
 
 ##### NO
 
-(if the network isn't present it gets no answer back after 1-2s)
+No response if the group is not present (timeout: 1-2 seconds).
 
-#### JOIN
+---
 
-```css
-[HIGH] [FUNCTION=3|1B] [GROUP_ID|2B] [CONNECT_ID=1B] [VERIFY_BYTE=VERIFY_BYTE x (PASSWORD + SALT)|1B] [HASH|1B] [LOW]
-```
+#### **3\. JOIN**
 
-#### ACCEPT
+Request to join a group.
 
-```css
-[HIGH] [FUNCTION=4|1B] [CONNECT_ID=1B] /*everything after here is encrypted using password & salt from before*/ [GROUP_ID|2B] [USER_ID|2B] [IS_ACCEPTED=(yes=1;no=0)|1B] [CURRENT_SALT=2B] [SALT_MODIFIER_PER_POCKET=( (MODIFYER=+-*/|2Bit) + (VALUE|14Bit) )|2B] [HASH|2B] [LOW]
-```
+`[HIGH] [FUNCTION=3|1B] [GROUP_ID|2B] [CONNECT_ID|1B] [VERIFY_BYTES x (PASSWORD + SALT)|2B] [HASH|2B] [LOW]`
 
-#### JOINED
+#### **4\. ACCEPT**
 
-```css
-[HIGH] [FUNCTION=5|1B] [GROUP_ID|2B] /*everything after here is encrypted using password & salt from before*/ [USER_ID=2B] [CURRENT_SALT=SALT_MODIFYED|2B] [HASH|2B] [LOW]
-```
+Response to a join request.
 
-#### SEND
+`[HIGH] [FUNCTION=4|1B] [CONNECT_ID|1B] /* Encrypted data starts here */ [GROUP_ID|2B] [USER_ID|2B] [IS_ACCEPTED=1|1B] [CURRENT_SALT|2B] [SALT_MODIFIER_PER_PACKET=(MODIFIER + VALUE)|2B] [HASH|2B] [LOW]`
 
-```css
-[HIGH] [FUNCTION=6|1B] [GROUP_ID|2B] /*everything after here is encrypted using password & salt from before*/ [USER_ID|2B] [USER_DESTINATION|2B] [DATA_LENGTH=L|1B] [HASH|4B] [DATA=...|LB] [LOW]
-```
+#### **5\. JOINED**
+
+Acknowledges successful group joining.
+
+`[HIGH] [FUNCTION=5|1B] [GROUP_ID|2B] /* Encrypted data starts here */ [USER_ID|2B] [CURRENT_SALT|2B] [HASH|2B] [LOW]`
+
+---
+
+#### **6\. SEND**
+
+Send data to a specific user.
+
+`[HIGH] [FUNCTION=6|1B] [GROUP_ID|2B] /* Encrypted data starts here */ [USER_ID|2B] [USER_DESTINATION|2B] [DATA_LENGTH=L|1B] [HASH|4B] [DATA|LB] [LOW]`
+
+#### **7\. SEND TO MULTIPLE USERS**
+
+Broadcast data to multiple specific users.
+
+`[HIGH] [FUNCTION=7|1B] [GROUP_ID|2B] /* Encrypted data starts here */ [USER_ID|2B] [USERS_LENGTH=L|2B] [USER_DESTINATIONS|L*2B] [DATA_LENGTH=L|1B] [HASH|4B] [DATA|LB] [LOW]`
+
+#### **8\. BROADCAST INNER GROUP**
+
+Broadcast data within a group.
+
+`[HIGH] [FUNCTION=8|1B] [GROUP_ID|2B] /* Encrypted data starts here */ [USER_ID|2B] [DATA_LENGTH=L|1B] [HASH|4B] [DATA|LB] [LOW]`
+
+#### **9\. BROADCAST INNER NETWORK**
+
+Broadcast data to all devices in the network.
+
+`[HIGH] [FUNCTION=9|1B] [GROUP_ID|2B] [DATA_LENGTH=L|1B] [HASH|4B] [DATA|LB] [LOW]`
+
+---
+
+### Key Concepts
+
+- **Hashing**: All packets contain a hash to validate their integrity.
+- **Encryption**: Sensitive data fields are encrypted using a combination of a password and a salt.
+
+This protocol ensures secure and reliable communication across multiple devices.
