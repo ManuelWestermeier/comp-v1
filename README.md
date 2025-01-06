@@ -4,7 +4,7 @@
 
 Every pocket follows this concept:
 
-- `[HIGH]` and `[LOW]` are fixed length 1 byte integers that shows the start and the end of the pocket.
+- `[HIGH]` are impulses that shows the start of the pocket. After the pocket the connection is pulled `[LOW]`.
 - `[FUNCTION]` is a fixed length 1 byte integer representing the function being performed.
 
 all pockets are split into chunks: `[NAME=VALUE|LENGTH]`.
