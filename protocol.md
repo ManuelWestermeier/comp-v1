@@ -50,7 +50,7 @@ Example:
 
 Used to discover network groups.
 
-`[HIGH] [FUNCTION=1|1B] [ANSWER_ID=random()|1B] [GROUP_NAME_LENGTH=L|1B] [GROUP_NAME_STRING=...|LB] [HASH|1B] [LOW]`
+`[HIGH] [FUNCTION=1|1B] [ANSWER_ID=random()|1B] [GROUP_NAME_LENGTH=L|1B] [GROUP_NAME_STRING=...|L*1B] [HASH|1B] [LOW]`
 
 #### **2\. HERE IS**
 
@@ -90,25 +90,25 @@ Acknowledges successful group joining.
 
 Send data to a specific user.
 
-`[HIGH] [FUNCTION=6|1B] [GROUP_ID|2B] /* Encrypted data starts here */ [USER_ID|2B] [USER_DESTINATION|2B] [DATA_LENGTH=L|1B] [HASH|4B] [DATA|LB] [LOW]`
+`[HIGH] [FUNCTION=6|1B] [GROUP_ID|2B] [DATA_LENGTH=L|1B] /* Encrypted data starts here */ [USER_ID|2B] [USER_DESTINATION|2B] [HASH|4B] [DATA|L*1B] [LOW]`
 
 #### **7\. SEND TO MULTIPLE USERS**
 
 Broadcast data to multiple specific users.
 
-`[HIGH] [FUNCTION=7|1B] [GROUP_ID|2B] /* Encrypted data starts here */ [USER_ID|2B] [USERS_LENGTH=L|2B] [USER_DESTINATIONS|L*2B] [DATA_LENGTH=L|1B] [HASH|4B] [DATA|LB] [LOW]`
+`[HIGH] [FUNCTION=7|1B] [GROUP_ID|2B] [USERS_LENGTH=UL|2B] [DATA_LENGTH=DL|1B] /* Encrypted data starts here */ [USER_ID|2B] [USER_DESTINATIONS|UL*2B] [HASH|4B] [DATA|DL*1B] [LOW]`
 
 #### **8\. BROADCAST INNER GROUP**
 
 Broadcast data within a group.
 
-`[HIGH] [FUNCTION=8|1B] [GROUP_ID|2B] /* Encrypted data starts here */ [USER_ID|2B] [DATA_LENGTH=L|1B] [HASH|4B] [DATA|LB] [LOW]`
+`[HIGH] [FUNCTION=8|1B] [GROUP_ID|2B] [DATA_LENGTH=L|1B] /* Encrypted data starts here */ [USER_ID|2B] [HASH|4B] [DATA|L*1B] [LOW]`
 
 #### **9\. BROADCAST INNER NETWORK**
 
 Broadcast data to all devices in the network.
 
-`[HIGH] [FUNCTION=9|1B] [GROUP_ID|2B] [DATA_LENGTH=L|1B] [HASH|4B] [DATA|LB] [LOW]`
+`[HIGH] [FUNCTION=9|1B] [DATA_LENGTH=L|1B] [HASH|4B] [DATA|L*1B] [LOW]`
 
 ---
 
