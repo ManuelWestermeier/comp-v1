@@ -4,6 +4,7 @@ This is a multigroup encrypted **Networking Protocol** designed for communicatio
 
 ### Overview
 
+- **Network Hierarchy**
 - **Signal States**: The connection can either be pulled `HIGH` (active) or remain `LOW` (idle).
 - **Transmission Timing**:
   - Each bit is sent every 1000 microseconds.
@@ -13,19 +14,22 @@ This is a multigroup encrypted **Networking Protocol** designed for communicatio
   - The packet data contains binary representations of various fields.
   - Packets end with a `[LOW]` signal, indicating the next packet's beginning.
 
-### Packet Transmission Rules
-
-1.  **Start Conditions**:
-
-    - To send a packet, the sender ensures the connection remains `LOW` for a specified _max send time_.
-    - If the connection goes `HIGH` during this period, the sender must retry.
-
-2.  **Collision Avoidance**:
-
-    - Devices use the time since the last packet's transmission to wait for a random interval between 1000 and 50000 microseconds before attempting to pull the connection `HIGH`.
-    - If the line stays `LOW`, the sender may proceed to transmit a packet.
-
 # Network Hierarchy
+
+The **NETWORK** is the physical connection established using 433 MHz RF modules.
+
+The **GROUPs** are virtual networks that implement encryption for secure communication.  
+Users within a GROUP can handle the connection process or create up to **65,536 GROUPs**.
+Each GROUP can have up to **65,536 users**.
+Each user is a member of one or more GROUPs and can connect to multiple networks simultaneously.
+
+Users can perform the following actions:
+
+- Send encrypted messages to other users within the GROUP.
+- Broadcast messages to all members of the GROUP.
+- Broadcast messages to the entire NETWORK.
+
+## Hierarchy Overview
 
 ```plaintext
 NETWORK
@@ -41,11 +45,25 @@ NETWORK
   └── GROUP 3
         ├── USER 6
         ├── USER 7
-        |── USER 8
+        ├── USER 8
         └── USER 9
             ...
   ...
 ```
+
+This hierarchy ensures a structured organization of users within secure and scalable virtual GROUPs, supported by a robust physical NETWORK.
+
+### Packet Transmission Rules
+
+1.  **Start Conditions**:
+
+    - To send a packet, the sender ensures the connection remains `LOW` for a specified _max send time_.
+    - If the connection goes `HIGH` during this period, the sender must retry.
+
+2.  **Collision Avoidance**:
+
+    - Devices use the time since the last packet's transmission to wait for a random interval between 1000 and 50000 microseconds before attempting to pull the connection `HIGH`.
+    - If the line stays `LOW`, the sender may proceed to transmit a packet.
 
 ### Packet Format
 
@@ -140,3 +158,7 @@ Broadcast data to all devices in the network.
 - **Encryption**: Sensitive data fields are encrypted using a combination of a password and a salt.
 
 This protocol ensures secure and reliable communication across multiple devices.
+
+```
+
+```
