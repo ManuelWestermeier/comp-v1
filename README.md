@@ -7,6 +7,8 @@ These bytes are organized to Pockets and parsed.
 All Pockets start with a `[HIGH]` pulse and comes the binary representation.
 At first comes the function (8 bits). It says the connections of what type the pocket is.
 After the Pocket comes a `[LOW]` pulse. It is that the next beginning of the next pocket can be identified.
+To check if it is possible to send a Pocket via the connection the sernder checks if _the connection is `[LWO]`_ for the time of the _max send Time_.
+If its getting `[HIGH]` wile that repeat. If the connection knows when the last Pocket was sent it can wait a random amount of time between 1000 Microseconds and 50000 Microseconds. If the connection is all time low it can pull the connection `[HIGH]` and start the Pocket.
 The connection is via 433Mhz sender & recievers.
 
 ### Pockets
@@ -35,7 +37,7 @@ the default is:
 #### IS HERE
 
 ```css
-[HIGH] [FUNCTION=1|1B] [ANSWERID=random()|1B] [GROUP_NAME_LENGTH=L|1B] [GROUP_NAME_STRING=...|LB] [HASH|1B] [LOW]
+[HIGH] [FUNCTION=1|1B] [ANSWER_ID=random()|1B] [GROUP_NAME_LENGTH=L|1B] [GROUP_NAME_STRING=...|LB] [HASH|1B] [LOW]
 ```
 
 #### HERE IS
@@ -43,7 +45,7 @@ the default is:
 ##### YES
 
 ```css
-[HIGH] [FUNCTION=2|1B] [ANSWERID=ANSWER_ID_FROM_IS_HERE_POCKET|1B] [GROUP_ID=GROUP_ID|2B] [CONNECT_ID=1B] [VERIFY_BYTE=1B] [SALT=random()|1B] [HASH|2B] [LOW]
+[HIGH] [FUNCTION=2|1B] [ANSWER_ID=ANSWER_ID_FROM_IS_HERE_POCKET|1B] [GROUP_ID=GROUP_ID|2B] [CONNECT_ID=1B] [VERIFY_BYTES=2B] [SALT=random()|1B] [HASH|2B] [LOW]
 ```
 
 ##### NO
@@ -53,7 +55,7 @@ the default is:
 #### JOIN
 
 ```css
-[HIGH] [FUNCTION=3|1B] [GROUP_ID|2B] [CONNECT_ID=1B] [VERIFY_BYTE=VERIFY_BYTE x (PASSWORD + SALT)|1B] [HASH|1B] [LOW]
+[HIGH] [FUNCTION=3|1B] [GROUP_ID|2B] [CONNECT_ID=1B] [VERIFY_BYTES=VERIFY_BYTES x (PASSWORD + SALT)|2B] [HASH|2B] [LOW]
 ```
 
 #### ACCEPT
