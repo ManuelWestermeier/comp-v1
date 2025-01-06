@@ -98,6 +98,8 @@ Used to discover network groups.
 
 Confirms the group's existence.
 
+All users in the group can respond to this packet, but the first user in the group — determined by the shortest random delay time — will send the reply.
+
 `[HIGH] [FUNCTION=2|1B] [ANSWER_ID|1B] [GROUP_ID|2B] [CONNECT_ID|1B] [VERIFY_BYTES|2B] [SALT=random()|1B] [HASH|2B] [LOW]`
 
 ##### NO
@@ -113,6 +115,8 @@ Request to join a group.
 #### **4\. ACCEPT**
 
 Response to a join request.
+
+All users in the group can respond to this packet, but the first user in the group — determined by the shortest random delay time — will send the reply.
 
 `[HIGH] [FUNCTION=4|1B] [CONNECT_ID|1B] /* Encrypted data starts here */ [GROUP_ID|2B] [USER_ID|2B] [IS_ACCEPTED=1|1B] [CURRENT_SALT|2B] [SALT_MODIFIER_PER_PACKET=(MODIFIER + VALUE)|2B] [HASH|2B] [LOW]`
 
