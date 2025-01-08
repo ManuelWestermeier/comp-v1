@@ -118,7 +118,15 @@ Response to a join request.
 
 All users in the group can respond to this packet, but the first user in the group — determined by the shortest random delay time — will send the reply.
 
-`[HIGH] [FUNCTION=4|1B] [CONNECT_ID|1B] /* Encrypted data starts here */ [GROUP_ID|2B] [USER_ID|2B] [IS_ACCEPTED=1|1B] [CURRENT_SALT|2B] [SALT_MODIFIER_PER_PACKET=(MODIFIER + VALUE)|2B] [HASH|2B] [LOW]`
+##### YES
+
+Confirms the group's existence.
+
+`[HIGH] [FUNCTION=4|1B] [GROUP_ID|2B] [CONNECT_ID|1B] /* Encrypted data starts here */ [USER_ID|2B] [CURRENT_SALT|2B] [SALT_MODIFIER_PER_PACKET=(MODIFIER + VALUE)|2B] [HASH|2B] [LOW]`
+
+##### NO
+
+No response if the group is not present (timeout: 1-2 seconds).
 
 #### **5\. JOINED**
 
