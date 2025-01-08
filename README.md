@@ -57,19 +57,19 @@ This hierarchy ensures a structured organization of users within secure and scal
 # Signing
 
 1. **Random Value Generation**  
-   The user generates a random 4-byte value, referred to as `RAND_V`.
+   The user generates a random 4-byte value, referred to as `SIGN_VALUE`.
 
 2. **Hashing the Value**  
-   The user hashes `RAND_V` and extracts the last 4 bytes of the hash, referred to as `RAND_V_HASH`.
+   The user hashes `SIGN_VALUE` and extracts the last 4 bytes of the hash, referred to as `SIGN_VALUE_HASH`.
 
 3. **Sharing the Hash**  
-   The value of `RAND_V_HASH` is shared with all members of the group.
+   The value of `SIGN_VALUE_HASH` is shared with all members of the group.
 
 4. **Signing a Message**  
    To sign a message, the user sends:
 
-   - The original random value (`RAND_V`)
-   - The next hashed random value (`NEXT_RAND_V_HASH`) to identify the next message (it have to be send in the same pocket)
+   - The original random value (`SIGN_VALUE`)
+   - The next hashed random value (`NEXT_SIGN_VALUE_HASH`) to identify the next message (it have to be send in the same pocket)
 
 This ensures that each message is uniquely identifiable and establishes the hash for the following message.
 
@@ -130,7 +130,7 @@ No response if the group is not present (timeout: 1-2 seconds).
 
 Request to join a group.
 
-`[HIGH] [FUNCTION=3|1B] [GROUP_ID|2B] [CONNECT_ID|1B] [VERIFY_BYTES x (PASSWORD + SALT)|2B] [CURRENT_SIGN|4B] [HASH|2B] [LOW]`
+`[HIGH] [FUNCTION=3|1B] [GROUP_ID|2B] [CONNECT_ID|1B] [VERIFY_BYTES x (PASSWORD + SALT)|2B] [CURRENT_SIGN_HASH|4B] [HASH|2B] [LOW]`
 
 #### **4\. ACCEPT**
 
@@ -152,7 +152,7 @@ No response if the group is not present (timeout: 1-2 seconds).
 
 Acknowledges successful group joining.
 
-`[HIGH] [FUNCTION=5|1B] [GROUP_ID|2B] /* Encrypted data starts here */ [USER_ID|2B] [CURRENT_SALT|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN|4B] [HASH|2B] [LOW]`
+`[HIGH] [FUNCTION=5|1B] [GROUP_ID|2B] /* Encrypted data starts here */ [USER_ID|2B] [CURRENT_SALT|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|2B] [LOW]`
 
 ---
 
@@ -160,19 +160,19 @@ Acknowledges successful group joining.
 
 Send data to a specific user.
 
-`[HIGH] [FUNCTION=6|1B] [GROUP_ID|2B] [DATA_LENGTH=L|1B] /* Encrypted data starts here */ [USER_ID|2B] [USER_DESTINATION|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN|4B] [HASH|4B] [DATA|L*1B] [LOW]`
+`[HIGH] [FUNCTION=6|1B] [GROUP_ID|2B] [DATA_LENGTH=L|1B] /* Encrypted data starts here */ [USER_ID|2B] [USER_DESTINATION|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [DATA|L*1B] [LOW]`
 
 #### **7\. SEND TO MULTIPLE USERS**
 
 Broadcast data to multiple specific users.
 
-`[HIGH] [FUNCTION=7|1B] [GROUP_ID|2B] [USERS_LENGTH=UL|2B] [DATA_LENGTH=DL|1B] /* Encrypted data starts here */ [USER_ID|2B] [USER_DESTINATIONS|UL*2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN|4B] [HASH|4B] [DATA|DL*1B] [LOW]`
+`[HIGH] [FUNCTION=7|1B] [GROUP_ID|2B] [USERS_LENGTH=UL|2B] [DATA_LENGTH=DL|1B] /* Encrypted data starts here */ [USER_ID|2B] [USER_DESTINATIONS|UL*2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [DATA|DL*1B] [LOW]`
 
 #### **8\. BROADCAST INNER GROUP**
 
 Broadcast data within a group.
 
-`[HIGH] [FUNCTION=8|1B] [GROUP_ID|2B] [DATA_LENGTH=L|1B] /* Encrypted data starts here */ [USER_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN|4B] [HASH|4B] [DATA|L*1B] [LOW]`
+`[HIGH] [FUNCTION=8|1B] [GROUP_ID|2B] [DATA_LENGTH=L|1B] /* Encrypted data starts here */ [USER_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [DATA|L*1B] [LOW]`
 
 #### **9\. BROADCAST INNER NETWORK**
 
@@ -185,6 +185,7 @@ Broadcast data to all devices in the network.
 ### Key Concepts
 
 - **Hashing**: All packets contain a hash to validate their integrity.
+- **Signing**: All packets in a group contain a hash to validate which user send it.
 - **Encryption**: Sensitive data fields are encrypted using a combination of a password and a salt.
 
 This protocol ensures secure and reliable communication across multiple devices.
