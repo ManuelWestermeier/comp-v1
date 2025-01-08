@@ -5,6 +5,7 @@ This is a multigroup encrypted **Networking Protocol** designed for communicatio
 ### Overview
 
 - **Network Hierarchy**
+- **Signing**
 - **Signal States**: The connection can either be pulled `HIGH` (active) or remain `LOW` (idle).
 - **Transmission Timing**:
   - Each bit is sent every 1000 microseconds.
@@ -53,7 +54,26 @@ NETWORK
 
 This hierarchy ensures a structured organization of users within secure and scalable virtual GROUPs, supported by a robust physical NETWORK.
 
-### Packet Transmission Rules
+# Signing
+
+1. **Random Value Generation**  
+   The user generates a random 4-byte value, referred to as `RAND_V`.
+
+2. **Hashing the Value**  
+   The user hashes `RAND_V` and extracts the last 4 bytes of the hash, referred to as `RAND_V_HASH`.
+
+3. **Sharing the Hash**  
+   The value of `RAND_V_HASH` is shared with all members of the group.
+
+4. **Signing a Message**  
+   To sign a message, the user sends:
+
+   - The original random value (`RAND_V`)
+   - The next hashed random value (`NEXT_RAND_V_HASH`) to identify the next message (it have to be send in the same pocket)
+
+This ensures that each message is uniquely identifiable and establishes the hash for the following message.
+
+# Packet Transmission Rules
 
 1.  **Start Conditions**:
 
@@ -65,7 +85,7 @@ This hierarchy ensures a structured organization of users within secure and scal
     - Devices use the time since the last packet's transmission to wait for a random interval between 1000 and 50000 microseconds before attempting to pull the connection `HIGH`.
     - If the line stays `LOW`, the sender may proceed to transmit a packet.
 
-### Packet Format
+# Packet Format
 
 Each packet follows a structured format:
 
@@ -84,7 +104,7 @@ Example:
 
 ---
 
-### Packet Types
+# Packet Types
 
 #### **1\. IS HERE**
 
@@ -110,7 +130,7 @@ No response if the group is not present (timeout: 1-2 seconds).
 
 Request to join a group.
 
-`[HIGH] [FUNCTION=3|1B] [GROUP_ID|2B] [CONNECT_ID|1B] [VERIFY_BYTES x (PASSWORD + SALT)|2B] [HASH|2B] [LOW]`
+`[HIGH] [FUNCTION=3|1B] [GROUP_ID|2B] [CONNECT_ID|1B] [VERIFY_BYTES x (PASSWORD + SALT)|2B] [CURRENT_SIGN|4B] [HASH|2B] [LOW]`
 
 #### **4\. ACCEPT**
 
@@ -132,7 +152,7 @@ No response if the group is not present (timeout: 1-2 seconds).
 
 Acknowledges successful group joining.
 
-`[HIGH] [FUNCTION=5|1B] [GROUP_ID|2B] /* Encrypted data starts here */ [USER_ID|2B] [CURRENT_SALT|2B] [HASH|2B] [LOW]`
+`[HIGH] [FUNCTION=5|1B] [GROUP_ID|2B] /* Encrypted data starts here */ [USER_ID|2B] [CURRENT_SALT|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN|4B] [HASH|2B] [LOW]`
 
 ---
 
@@ -140,19 +160,19 @@ Acknowledges successful group joining.
 
 Send data to a specific user.
 
-`[HIGH] [FUNCTION=6|1B] [GROUP_ID|2B] [DATA_LENGTH=L|1B] /* Encrypted data starts here */ [USER_ID|2B] [USER_DESTINATION|2B] [HASH|4B] [DATA|L*1B] [LOW]`
+`[HIGH] [FUNCTION=6|1B] [GROUP_ID|2B] [DATA_LENGTH=L|1B] /* Encrypted data starts here */ [USER_ID|2B] [USER_DESTINATION|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN|4B] [HASH|4B] [DATA|L*1B] [LOW]`
 
 #### **7\. SEND TO MULTIPLE USERS**
 
 Broadcast data to multiple specific users.
 
-`[HIGH] [FUNCTION=7|1B] [GROUP_ID|2B] [USERS_LENGTH=UL|2B] [DATA_LENGTH=DL|1B] /* Encrypted data starts here */ [USER_ID|2B] [USER_DESTINATIONS|UL*2B] [HASH|4B] [DATA|DL*1B] [LOW]`
+`[HIGH] [FUNCTION=7|1B] [GROUP_ID|2B] [USERS_LENGTH=UL|2B] [DATA_LENGTH=DL|1B] /* Encrypted data starts here */ [USER_ID|2B] [USER_DESTINATIONS|UL*2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN|4B] [HASH|4B] [DATA|DL*1B] [LOW]`
 
 #### **8\. BROADCAST INNER GROUP**
 
 Broadcast data within a group.
 
-`[HIGH] [FUNCTION=8|1B] [GROUP_ID|2B] [DATA_LENGTH=L|1B] /* Encrypted data starts here */ [USER_ID|2B] [HASH|4B] [DATA|L*1B] [LOW]`
+`[HIGH] [FUNCTION=8|1B] [GROUP_ID|2B] [DATA_LENGTH=L|1B] /* Encrypted data starts here */ [USER_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN|4B] [HASH|4B] [DATA|L*1B] [LOW]`
 
 #### **9\. BROADCAST INNER NETWORK**
 
