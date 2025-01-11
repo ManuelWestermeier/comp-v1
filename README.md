@@ -72,6 +72,8 @@ This hierarchy ensures a structured organization of users within secure and scal
    - The next hashed random value (`NEXT_SIGN_VALUE_HASH`) to identify the next message (it have to be send in the same pocket)
 
 This ensures that each message is uniquely identifiable and establishes the hash for the following message.
+The format is (` ... [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] ... `).
+
 
 # Packet Transmission Rules
 
