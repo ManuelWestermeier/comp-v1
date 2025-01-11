@@ -184,7 +184,7 @@ Indicate if a user sends the wrong sign hash.
 
 Indicate when a hacker falsely claims a user has a wrong sign, but the sign is valid.
 
-`[HIGH] [FUNCTION=8|1B] [GROUP_ID|2B] /* Encrypted data starts here */ [USER_ID|2B] [HACKER_USER_WITH_WRONG_SIGN_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|2B] [LOW]`
+`[HIGH] [FUNCTION=9|1B] [GROUP_ID|2B] /* Encrypted data starts here */ [USER_ID|2B] [HACKER_USER_WITH_WRONG_SIGN_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|2B] [LOW]`
 
 ---
 
