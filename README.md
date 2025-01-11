@@ -106,6 +106,8 @@ Example:
 
 # Packet Types
 
+## Authorize
+
 #### **1\. IS HERE**
 
 Used to discover network groups.
@@ -156,29 +158,65 @@ Acknowledges successful group joining.
 
 ---
 
-#### **6\. SEND**
+## Get the Signs of the users in the group
+
+#### **6\. WHO IS IN THE GROUP**
+
+Ask who is in the group.
+
+`[HIGH] [FUNCTION=6|1B] [GROUP_ID|2B] /* Encrypted data starts here */ [USER_ID|2B] [CURRENT_SALT|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|2B] [LOW]`
+
+#### **7\. I AM IN THE GROUP**
+
+Say that you are in the group.
+
+`[HIGH] [FUNCTION=7|1B] [GROUP_ID|2B] /* Encrypted data starts here */ [USER_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|2B] [LOW]`
+
+#### **8\. WRONG SIGN**
+
+Indicate if a user sends the wrong sign hash.
+
+`[HIGH] [FUNCTION=8|1B] [GROUP_ID|2B] /* Encrypted data starts here */ [USER_ID|2B] [USER_WITH_WRONG_SIGN_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|2B] [LOW]`
+
+#### **9\. WRONG SIGN PACKET IS CORRUPTED**
+
+Indicate when a hacker falsely claims a user has a wrong sign, but the sign is valid.
+
+`[HIGH] [FUNCTION=8|1B] [GROUP_ID|2B] /* Encrypted data starts here */ [USER_ID|2B] [HACKER_USER_WITH_WRONG_SIGN_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|2B] [LOW]`
+
+---
+
+## Send
+
+#### **10\. SEND**
 
 Send data to a specific user.
 
-`[HIGH] [FUNCTION=6|1B] [GROUP_ID|2B] [DATA_LENGTH=L|1B] /* Encrypted data starts here */ [USER_ID|2B] [USER_DESTINATION|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [DATA|L*1B] [LOW]`
+`[HIGH] [FUNCTION=10|1B] [GROUP_ID|2B] [DATA_LENGTH=L|1B] /* Encrypted data starts here */ [USER_ID|2B] [USER_DESTINATION|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [DATA|L*1B] [LOW]`
 
-#### **7\. SEND TO MULTIPLE USERS**
+#### **11\. SEND TO MULTIPLE USERS**
 
 Broadcast data to multiple specific users.
 
-`[HIGH] [FUNCTION=7|1B] [GROUP_ID|2B] [USERS_LENGTH=UL|2B] [DATA_LENGTH=DL|1B] /* Encrypted data starts here */ [USER_ID|2B] [USER_DESTINATIONS|UL*2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [DATA|DL*1B] [LOW]`
+`[HIGH] [FUNCTION=11|1B] [GROUP_ID|2B] [USERS_LENGTH=UL|2B] [DATA_LENGTH=DL|1B] /* Encrypted data starts here */ [USER_ID|2B] [USER_DESTINATIONS|UL*2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [DATA|DL*1B] [LOW]`
 
-#### **8\. BROADCAST INNER GROUP**
+#### **12\. BROADCAST INNER GROUP**
 
 Broadcast data within a group.
 
-`[HIGH] [FUNCTION=8|1B] [GROUP_ID|2B] [DATA_LENGTH=L|1B] /* Encrypted data starts here */ [USER_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [DATA|L*1B] [LOW]`
+`[HIGH] [FUNCTION=12|1B] [GROUP_ID|2B] [DATA_LENGTH=L|1B] /* Encrypted data starts here */ [USER_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [DATA|L*1B] [LOW]`
 
-#### **9\. BROADCAST INNER NETWORK**
+#### **20\. BROADCAST INNER NETWORK**
 
 Broadcast data to all devices in the network.
 
-`[HIGH] [FUNCTION=9|1B] [DATA_LENGTH=L|1B] [HASH|4B] [DATA|L*1B] [LOW]`
+`[HIGH] [FUNCTION=20|1B] [DATA_LENGTH=L|1B] [HASH|4B] [DATA|L*1B] [LOW]`
+
+#### **21\. SEND TO MAC INNER NETWORK**
+
+Send a message to an user in the network by the mac-adress.
+
+`[HIGH] [FUNCTION=21|1B] [MAC_ADRESS|4B] [DATA_LENGTH=L|1B] [HASH|4B] [DATA|L*1B] [LOW]`
 
 ---
 
