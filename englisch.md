@@ -1,6 +1,7 @@
 # Networking Protocol V1
 
 This is a multigroup encrypted **Networking Protocol** designed for communication using 433 MHz transmitters and receivers.
+The technology can also be used for a wired connection.
 
 ### Overview
 

@@ -1,6 +1,7 @@
 # Netzwerkprotokoll V1
 
 Dies ist ein verschlüsseltes **Netzwerkprotokoll** für die Kommunikation mit 433 MHz Sendern und Empfängern, das mehrere Gruppen unterstützt.
+Die Technologie kann auch fir eine Kabelverbindung verwendet werden.
 
 ### Übersicht
 
