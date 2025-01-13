@@ -6,10 +6,9 @@ Die Technologie kann auch für eine Kabelverbindung verwendet werden.
 # Übersicht
 
 - **Signalzustände**: Wie werden die "Einser und Nuller" gesendet
+- **Paketformat** - Was ist eigentlich ein Paket
 - **Grundlegende Datenübertragung** - Bytes/Zahlen senden und empfangen
-- **Übertragungstiming**:
-  - Jedes Bit wird alle 50 Mikrosekunden gesendet.
-  - Bits werden in Bytes gruppiert, die wiederum in Pakete organisiert werden.
+- **Paketübertragungsregeln**:
 - **Netzwerk-Hierarchie** - Wie ist das Netzwerk aufgebaut
 - **Signierung** - Wie kann sich jeder im Netzwerk sicher sein, dass ein Paket wirklich von einem bestimmten Benutzer gesendet wurde
 - **Paketstruktur** - Wie sind die Pakete aufgebaut und wie funktioniert das Netzwerkprotokoll
@@ -18,6 +17,29 @@ Die Technologie kann auch für eine Kabelverbindung verwendet werden.
 
 - Die Verbindung kann entweder auf `HIGH` (aktiv/Strom fliest) oder `LOW` (inaktiv/Strom fliest nicht) gesetzt werden. 
 - Die Zustände können auch Binärziffern darstellen die zu Binärzahlen zusammengesätzt werden.
+- Der Zustand wird in delayTime (50 Mikrosekunden) intervallen geändert.
+
+
+# Paketformat
+
+Das Netzwerkprotokoll teilt die Daren die über die Leitung gesendet werden in Byte-Pakete, Pakete und Chunks ein. Dies sin virtuelle Einteilungen.
+
+Jedes Paket folgt einem strukturierten Format:
+
+1. Byte-Pakete: Die Möglichkeit 1 Byte (8 Bits) und die isFollowing Flag (1Bit) (source code unter dieser Sektion unter Grundlegende Datenübertragung)
+
+- `[HIGH]`: Markiert den Beginn des Pakets.
+- `[FUNCTION=x|1B]`: Ein festes 1-Byte-Feld, das den Zweck des Pakets definiert.
+- Weitere Felder sind im Format `NAME=VALUE|LENGTH` angegeben:
+  - **NAME**: Name des Feldes.
+  - **VALUE**: Wert des Feldes oder dessen Standardwert.
+  - **LENGTH**: Feldgröße, angegeben als `xB` (Bytes) oder `xBit` (Bits).
+  - Verschlüsselte Werte werden als `VALUE x (PASSWORD + SALT)` angegeben.
+  - Felder können aus verketteten Chunks bestehen.
+
+Beispiel:
+
+`[HIGH] [FUNCTION=x|1B] ... [LOW]`
 
 # Grundlegende Datenübertragung
 
@@ -28,7 +50,7 @@ In den Eckigen Klammern ist ein Wert. Dieser Wert zeigt den Zustand (`HIGH`/`LOW
 - Am Anfang wird die "Leitung" auf `HIGH` gesetzt, was den Start des Bytepakets kennzeichnet.
 - Am Ende wird die "Leitung" auf `LOW` gesetzt, was dafür sorgt, dass die Letung bei dem nächsten Paket am Anfang wieder auf `HIGH` gestzt werden kann (Zustandsänderung). 
 
-#### Einfache Darstellung: [XY] dauern ein Zeitinterval (delayTime/50microsekunden)
+#### Einfache Darstellung: [XY] dauern ein Zeitinterval (delayTime/50Microsekunden)
 
 `[HIGH] [IS_FOLLOWING] [BIT_8] [BIT_7] [BIT_6] [BIT_5] [BIT_4] [BIT_3] [BIT_2] [BIT_1] [LOW]`
 
@@ -40,7 +62,7 @@ void rawSendByteWF(uint8_t value, int pin, int delayTime, bool isFollowing)
     digitalWrite(pin, HIGH);
     delayMicroseconds(delayTime); // Pause
 
-    // das erste Bit zeigt, ob das Paket auf ein anders folgt oder der Start eines neuen Pakets ist
+    // das erste Bit zeigt, ob das Paket auf ein anders Paket folgt oder der Start eines neuen Pakets ist
     digitalWrite(pin, isFollowing ? HIGH : LOW);
     delayMicroseconds(delayTime); // Pause
 
@@ -64,6 +86,7 @@ void rawSendByteWF(uint8_t value, int pin, int delayTime, bool isFollowing)
 ## Empfänger
 
 ```cpp
+// Datentyp zur vereinfachung
 struct RawPocket
 {
     bool isFollowing;
@@ -100,6 +123,19 @@ RawPocket rawReadByteWF(uint8_t pin, int delayTime)
     return pocket;
 }
 ```
+
+# Paketübertragungsregeln
+
+1.  **Startbedingungen**:
+
+    - Um ein Paket zu senden, stellt der Sender sicher, dass die Verbindung für eine festgelegte "maximale Sendezeit" (12 * delayTime) auf `LOW` bleibt.
+    Da pro Byte-Paket mindestens 1 mal der Zustand `HIGH` übertragen werden muss (am Start) und das Senden eines Byte-Paket ca. 11 * delayTime + 1 * delayTime Puffer dauert kann mann sagen, dass wenn die Leitung 12 * delayTime (50 Microsekunden) lang auf `LOW` steht Nichts gesendet wird.
+    - Wenn die Verbindung während dieses Zeitraums auf `HIGH` wechselt, muss der Sender den Versuch wiederholen.
+
+2.  **Kollisionsvermeidung**:
+
+    - Geräte verwenden die Zeit seit der letzten Paketübertragung, um für ein zufälliges Intervall zwischen 1000 und 50000 Mikroseunden zu warten, bevor sie versuchen, die Verbindung auf `HIGH` zu ziehen.
+    - Bleibt die Leitung auf `LOW`, kann der Sender mit der Übertragung des Pakets fortfahren.
 
 # Netzwerk-Hierarchie
 
@@ -166,35 +202,6 @@ Das Format lautet:
 
 1. Erstes Packet: (`... [CURRENT_SIGN_HASH|4B] ...`)
 2. Folgende Packete: (`... [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] ...`).
-
-# Paketübertragungsregeln
-
-1.  **Startbedingungen**:
-
-    - Um ein Paket zu senden, stellt der Sender sicher, dass die Verbindung für eine festgelegte _maximale Sendezeit_ auf `LOW` bleibt.
-    - Wenn die Verbindung während dieses Zeitraums auf `HIGH` wechselt, muss der Sender den Versuch wiederholen.
-
-2.  **Kollisionsvermeidung**:
-
-    - Geräte verwenden die Zeit seit der letzten Paketübertragung, um für ein zufälliges Intervall zwischen 1000 und 50000 Mikroseunden zu warten, bevor sie versuchen, die Verbindung auf `HIGH` zu ziehen.
-    - Bleibt die Leitung auf `LOW`, kann der Sender mit der Übertragung des Pakets fortfahren.
-
-# Paketformat
-
-Jedes Paket folgt einem strukturierten Format:
-
-- `[HIGH]`: Markiert den Beginn des Pakets.
-- `[FUNCTION=x|1B]`: Ein festes 1-Byte-Feld, das den Zweck des Pakets definiert.
-- Weitere Felder sind im Format `NAME=VALUE|LENGTH` angegeben:
-  - **NAME**: Name des Feldes.
-  - **VALUE**: Wert des Feldes oder dessen Standardwert.
-  - **LENGTH**: Feldgröße, angegeben als `xB` (Bytes) oder `xBit` (Bits).
-  - Verschlüsselte Werte werden als `VALUE x (PASSWORD + SALT)` angegeben.
-  - Felder können aus verketteten Chunks bestehen.
-
-Beispiel:
-
-`[HIGH] [FUNCTION=x|1B] ... [LOW]`
 
 ---
 
