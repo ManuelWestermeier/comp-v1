@@ -1,21 +1,22 @@
 # Netzwerkprotokoll V1
 
-Dies ist ein verschlüsseltes dezentrales **Netzwerkprotokoll** für die Kommunikation mit 433 MHz Sendern und Empfängern, das mehrere Gruppen unterstützt.
+Dies ist ein cryptographisches verschlüsseltes dezentrales **Netzwerkprotokoll** für die Kommunikation mit 433 MHz Sendern und Empfängern, das mehrere Gruppen unterstützt.
 Die Technologie kann auch für eine Kabelverbindung verwendet werden.
 
-### Übersicht
+# Übersicht
 
-- **Signalzustände**: Die Verbindung kann entweder auf `HIGH` (aktiv) oder `LOW` (inaktiv) gesetzt werden. Die Zustände können auch Binärziffern darstellen.
-- **Grundlegende Datenübertragung**
-- **Netzwerk-Hierarchie**
-- **Signierung**
+- **Signalzustände**: Wie werden die "Einser und Nuller" gesendet
+- **Grundlegende Datenübertragung** - Bytes senden und empfangen
 - **Übertragungstiming**:
-  - Jedes Bit wird alle 50 Mikroseunden gesendet.
+  - Jedes Bit wird alle 50 Mikrosekunden gesendet.
   - Bits werden in Bytes gruppiert, die wiederum in Pakete organisiert werden.
-- **Paketstruktur**:
-  - Jedes Paket beginnt mit einem `[HIGH]`-Signal, um den Beginn zu kennzeichnen.
-  - Die Paketdaten enthalten binäre Darstellungen verschiedener Felder.
-  - Pakete enden mit einem `[LOW]`-Signal, das den Beginn des nächsten Pakets anzeigt.
+- **Netzwerk-Hierarchie** - Wie ist das Netzwerk aufgebaut
+- **Signierung** - Wie kann sich jeder im Netzwerk sicher sein, dass ein Paket wirklich von einem bestimmten Benutzer gesendet wurde
+- **Paketstruktur** - Wie sind die Pakete aufgebaut und wie funktioniert das Netzwerkprotokoll
+
+# Signalzustände
+
+Die Verbindung kann entweder auf `HIGH` (aktiv) oder `LOW` (inaktiv) gesetzt werden. Die Zustände können auch Binärziffern darstellen
 
 # Grundlegende Datenübertragung
 
