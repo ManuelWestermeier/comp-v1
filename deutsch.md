@@ -15,31 +15,34 @@ Die Technologie kann auch für eine Kabelverbindung verwendet werden.
 
 # Signalzustände
 
-- Die Verbindung kann entweder auf `HIGH` (aktiv/Strom fliest) oder `LOW` (inaktiv/Strom fliest nicht) gesetzt werden. 
+- Die Verbindung kann entweder auf `HIGH` (aktiv/Strom fliest) oder `LOW` (inaktiv/Strom fliest nicht) gesetzt werden.
 - Die Zustände können auch Binärziffern darstellen die zu Binärzahlen zusammengesätzt werden.
 - Der Zustand wird in delayTime (50 Mikrosekunden) intervallen geändert.
-
 
 # Paketformat
 
 Das Netzwerkprotokoll teilt die Daren die über die Leitung gesendet werden in Byte-Pakete, Pakete und Chunks ein. Dies sin virtuelle Einteilungen.
 
-Jedes Paket folgt einem strukturierten Format:
+### Pakete: Jedes Paket folgt einem strukturierten Format:
 
-1. Byte-Pakete: Die Möglichkeit 1 Byte (8 Bits) und die isFollowing Flag (1Bit) (source code unter dieser Sektion unter Grundlegende Datenübertragung)
+Pakete setzen sich aus Chunks (kleinere Einheiten des Pakets mit Namen, Wert und Länge) zusammen.
+Diese werden in eckigen Klammmern angegeben.
 
 - `[HIGH]`: Markiert den Beginn des Pakets.
 - `[FUNCTION=x|1B]`: Ein festes 1-Byte-Feld, das den Zweck des Pakets definiert.
-- Weitere Felder sind im Format `NAME=VALUE|LENGTH` angegeben:
-  - **NAME**: Name des Feldes.
-  - **VALUE**: Wert des Feldes oder dessen Standardwert.
-  - **LENGTH**: Feldgröße, angegeben als `xB` (Bytes) oder `xBit` (Bits).
+- Weitere Felder sind im Format `[NAME=VALUE|LENGTH]` angegeben:
+  - **NAME**: Name des Chunks.
+  - **VALUE**: Wert des Chunks oder dessen Standardwert oder Nichts.
+  - **LENGTH**: Feldgröße, angegeben als `xB` (Bytes) oder `xBit` (Bits). Hier können auch vorherige Chunk-Veriabeln verwändet werden.
   - Verschlüsselte Werte werden als `VALUE x (PASSWORD + SALT)` angegeben.
   - Felder können aus verketteten Chunks bestehen.
+- `[LOW]`: Markiert das Ende des Pakets.
 
-Beispiel:
+#### Beispiel:
 
-`[HIGH] [FUNCTION=x|1B] ... [LOW]`
+`[HIG] [FN=100|1B] [CHUNK1|2B] [LENGTH|1B] [DATA|LENGTH*1B] [LOW]`
+
+#### Byte-Pakete: Die Möglichkeit 1 Byte (8 Bits) und die isFollowing Flag (1Bit) (source code unter dieser Sektion unter "Grundlegende Datenübertragung")
 
 # Grundlegende Datenübertragung
 
@@ -47,8 +50,9 @@ Beispiel:
 
 In den Eckigen Klammern ist ein Wert. Dieser Wert zeigt den Zustand (`HIGH`/`LOW`).
 `HIGH` steht für "ja" oder "1", `LOW` steht für "nein" oder 0.
+
 - Am Anfang wird die "Leitung" auf `HIGH` gesetzt, was den Start des Bytepakets kennzeichnet.
-- Am Ende wird die "Leitung" auf `LOW` gesetzt, was dafür sorgt, dass die Letung bei dem nächsten Paket am Anfang wieder auf `HIGH` gestzt werden kann (Zustandsänderung). 
+- Am Ende wird die "Leitung" auf `LOW` gesetzt, was dafür sorgt, dass die Letung bei dem nächsten Paket am Anfang wieder auf `HIGH` gestzt werden kann (Zustandsänderung).
 
 #### Einfache Darstellung: [XY] dauern ein Zeitinterval (delayTime/50Microsekunden)
 
@@ -128,8 +132,8 @@ RawPocket rawReadByteWF(uint8_t pin, int delayTime)
 
 1.  **Startbedingungen**:
 
-    - Um ein Paket zu senden, stellt der Sender sicher, dass die Verbindung für eine festgelegte "maximale Sendezeit" (12 * delayTime) auf `LOW` bleibt.
-    Da pro Byte-Paket mindestens 1 mal der Zustand `HIGH` übertragen werden muss (am Start) und das Senden eines Byte-Paket ca. 11 * delayTime + 1 * delayTime Puffer dauert kann mann sagen, dass wenn die Leitung 12 * delayTime (50 Microsekunden) lang auf `LOW` steht Nichts gesendet wird.
+    - Um ein Paket zu senden, stellt der Sender sicher, dass die Verbindung für eine festgelegte "maximale Sendezeit" (12 _ delayTime) auf `LOW` bleibt.
+      Da pro Byte-Paket mindestens 1 mal der Zustand `HIGH` übertragen werden muss (am Start) und das Senden eines Byte-Paket ca. 11 _ delayTime + 1 _ delayTime Puffer dauert kann mann sagen, dass wenn die Leitung 12 _ delayTime (50 Microsekunden) lang auf `LOW` steht Nichts gesendet wird.
     - Wenn die Verbindung während dieses Zeitraums auf `HIGH` wechselt, muss der Sender den Versuch wiederholen.
 
 2.  **Kollisionsvermeidung**:
