@@ -20,7 +20,7 @@ Die Technologie kann auch für eine Kabelverbindung verwendet werden.
 - **Signierung**: Alle Pakete in einer Gruppe enthalten einen Hash, um zu validieren, welcher Benutzer es gesendet hat.
 - **Verschlüsselung**: Sensible Datenfelder werden unter Verwendung einer Kombination aus Passwort und Salt verschlüsselt.
 - **Salt**: Eine Zusatzdatenmenge zu dem Verschlüsselungsschlüssel, der Megngenanalysen von verschlüsselten Daten erschwert.
-- **Binäre Zahlen**: Ein Zahlensystem das nur mit den Ziffern 1 und 0 arbeitet. In diesem Fall Strom an (`HIGH`) als 1 und Strom aus als 0 (`LOW`).  
+- **Binäre Zahlen**: Ein Zahlensystem das nur mit den Ziffern 1 und 0 arbeitet. In diesem Fall Strom an (`HIGH`) als 1 und Strom aus als 0 (`LOW`).
 
 # Signalzustände
 
@@ -100,17 +100,17 @@ void rawSendByteWF(uint8_t value, int pin, int delayTime, bool isFollowing)
 
 ```cpp
 // Datentyp zur vereinfachung
-struct RawPocket
+struct RawPacket
 {
     bool isFollowing;
     uint8_t data;
 };
 
 //WF=With isFollowingFlag
-RawPocket rawReadByteWF(uint8_t pin, int delayTime)
+RawPacket rawReadByteWF(uint8_t pin, int delayTime)
 {
-    RawPocket pocket;
-    pocket.data = 0;
+    RawPacket packet;
+    packet.data = 0;
 
     // Auf das Startsignal warten
     while (digitalRead(pin) != HIGH)
@@ -120,7 +120,7 @@ RawPocket rawReadByteWF(uint8_t pin, int delayTime)
     delayMicroseconds(delayTime * 1.5);
 
     // isFollowingFlag auslesen
-    pocket.isFollowing = (digitalRead(pin) == HIGH);
+    packet.isFollowing = (digitalRead(pin) == HIGH);
     delayMicroseconds(delayTime);
 
     // Jedes Bit auslesen und zu einem Byte zusammensätzen
@@ -128,12 +128,12 @@ RawPocket rawReadByteWF(uint8_t pin, int delayTime)
     {
         if (digitalRead(pin) == HIGH)
         {
-            pocket.data |= (1 << i); // LSB-first
+            packet.data |= (1 << i); // LSB-first
         }
         delayMicroseconds(delayTime);
     }
 
-    return pocket;
+    return packet;
 }
 ```
 
@@ -251,21 +251,21 @@ Das Format lautet:
 
 #### **1. IS HERE**
 
-Wird verwendet, um Netzwerkgruppen zu entdecken.
+Wird verwendet, um Gruppen zu finden.
 
-`[HIGH] [FUNCTION=1|1B] [ANSWER_ID=random()|1B] [GROUP_NAME_LENGTH=L|1B] [GROUP_NAME_STRING=...|L*1B] [HASH|1B] [LOW]`
+`[HIGH] [FUNCTION=1|1B] [PACKET_ID=random()|2B] [ANSWER_ID=random()|2B] [GROUP_NAME_LENGTH=L|1B] [GROUP_NAME_STRING=...|L*1B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [LOW]`
 
 #### **2. HERE IS**
 
-##### YES
+##### JA
 
 Bestätigt die Existenz der Gruppe.
 
-Alle Benutzer in der Gruppe können auf dieses Paket antworten, aber der erste Benutzer in der Gruppe — bestimmt durch die kürzeste zufällige Verzögerungszeit — sendet die Antwort.
+Alle Benutzer in der Gruppe können auf dieses Paket antworten, aber der erste Benutzer in der Gruppe (bestimmt durch die kürzeste zufällige Verzögerungszeit) sendet die Antwort.
 
-`[HIGH] [FUNCTION=2|1B] [ANSWER_ID|1B] [GROUP_ID|2B] [CONNECT_ID|1B] [VERIFY_BYTES|2B] [SALT=random()|1B] [HASH|2B] [LOW]`
+`[HIGH] [FUNCTION=2|1B] [PACKET_ID=random()|2B] [ANSWER_ID|2B] [GROUP_ID|2B] [CONNECT_ID|2B] [VERIFY_BYTES=ranom()|4B] [SALT=random()|2B] [HASH|4B] [LOW]`
 
-##### NO
+##### NEIN
 
 Keine Antwort, wenn die Gruppe nicht vorhanden ist (Timeout: 1-2 Sekunden).
 
@@ -273,21 +273,21 @@ Keine Antwort, wenn die Gruppe nicht vorhanden ist (Timeout: 1-2 Sekunden).
 
 Anfrage zum Beitreten einer Gruppe.
 
-`[HIGH] [FUNCTION=3|1B] [GROUP_ID|2B] [CONNECT_ID|1B] [VERIFY_BYTES x (PASSWORD + SALT)|2B] [CURRENT_SIGN_HASH|4B] [HASH|2B] [LOW]`
+`[HIGH] [FUNCTION=3|1B] [PACKET_ID=random()|2B] [GROUP_ID|2B] [CONNECT_ID|2B] [VERIFY_BYTES x (PASSWORD + SALT)|4B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [LOW]`
 
 #### **4. ACCEPT**
 
 Antwort auf eine Beitrittsanfrage.
 
-Alle Benutzer in der Gruppe können auf dieses Paket antworten, aber der erste Benutzer in der Gruppe — bestimmt durch die kürzeste zufällige Verzögerungszeit — sendet die Antwort.
+Alle Benutzer in der Gruppe können auf dieses Paket antworten, aber der erste Benutzer in der Gruppe (bestimmt durch die kürzeste zufällige Verzögerungszeit) sendet die Antwort.
 
-##### YES
+##### JA
 
 Bestätigt die Existenz der Gruppe.
 
-`[HIGH] [FUNCTION=4|1B] [GROUP_ID|2B] [CONNECT_ID|1B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [CURRENT_SALT|2B] [SALT_MODIFIER_PER_PACKET=(MODIFIER + VALUE)|2B] [HASH|2B] [LOW]`
+`[HIGH] [FUNCTION=4|1B] [PACKET_ID=random()|2B] [GROUP_ID|2B] [CONNECT_ID|2B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [CURRENT_SALT|4B] [ERROR_IDENTIFYER=random()|2B] [SALT_MODIFIER_PER_PACKET=(MODIFIER + VALUE)|2B] [HASH|4B] [LOW]`
 
-##### NO
+##### NEIN
 
 Keine Antwort, wenn die Gruppe nicht vorhanden ist (Timeout: 1-2 Sekunden).
 
@@ -295,7 +295,7 @@ Keine Antwort, wenn die Gruppe nicht vorhanden ist (Timeout: 1-2 Sekunden).
 
 Bestätigt den erfolgreichen Beitritt zur Gruppe.
 
-`[HIGH] [FUNCTION=5|1B] [GROUP_ID|2B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [CURRENT_SALT|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|2B] [LOW]`
+`[HIGH] [FUNCTION=5|1B] [PACKET_ID=random()|2B] [GROUP_ID|2B] /* Verschlüsselte Daten beginnen hier */ [ERROR_IDENTIFYER|2B] [USER_ID|2B] [CURRENT_SALT|4B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [LOW]`
 
 ---
 
@@ -305,25 +305,25 @@ Bestätigt den erfolgreichen Beitritt zur Gruppe.
 
 Fragt, wer in der Gruppe ist.
 
-`[HIGH] [FUNCTION=6|1B] [GROUP_ID|2B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [CURRENT_SALT|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|2B] [LOW]`
+`[HIGH] [FUNCTION=6|1B] [PACKET_ID=random()|2B] [GROUP_ID|2B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [CURRENT_SALT|4B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [LOW]`
 
 #### **7. I AM IN THE GROUP**
 
-Meldet, dass Sie in der Gruppe sind.
+Meldet, dass man in der Gruppe ist.
 
-`[HIGH] [FUNCTION=7|1B] [GROUP_ID|2B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|2B] [LOW]`
+`[HIGH] [FUNCTION=7|1B] [PACKET_ID=random()|2B] [GROUP_ID|2B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [LOW]`
 
 #### **8. WRONG SIGN**
 
 Weist darauf hin, wenn ein Benutzer den falschen Signatur-Hash sendet.
 
-`[HIGH] [FUNCTION=8|1B] [GROUP_ID|2B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [USER_WITH_WRONG_SIGN_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|2B] [LOW]`
+`[HIGH] [FUNCTION=8|1B] [PACKET_ID=random()|2B] [GROUP_ID|2B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [USER_WITH_WRONG_SIGN_ID|2B] [WRONG_SIGN_PACKET_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [LOW]`
 
 #### **9. WRONG SIGN PACKET IS CORRUPTED**
 
-Weist darauf hin, wenn ein Hacker fälschlicherweise behauptet, ein Benutzer habe eine falsche Signatur, die jedoch gültig ist.
+Weist darauf hin, wenn ein Hacker fälschlicherweise behauptet, ein Benutzer habe eine falsche Signatur, die jedoch gültig ist. Diese Kann nur durch einen anderen Benutzer gesendet werden (nicht HACKER).
 
-`[HIGH] [FUNCTION=9|1B] [GROUP_ID|2B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [HACKER_USER_WITH_WRONG_SIGN_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|2B] [LOW]`
+`[HIGH] [FUNCTION=9|1B] [PACKET_ID=random()|2B] [GROUP_ID|2B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [HACKER_USER_WITH_WRONG_SIGN_ID|2B] [WRONG_SIGN_PACKET_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [LOW]`
 
 ---
 
@@ -333,32 +333,38 @@ Weist darauf hin, wenn ein Hacker fälschlicherweise behauptet, ein Benutzer hab
 
 Sendet Daten an einen bestimmten Benutzer.
 
-`[HIGH] [FUNCTION=10|1B] [GROUP_ID|2B] [DATA_LENGTH=L|1B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [USER_DESTINATION|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [DATA|L*1B] [LOW]`
+`[HIGH] [FUNCTION=10|1B] [PACKET_ID=random()|2B] [GROUP_ID|2B] [DATA_LENGTH=L|1B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [USER_DESTINATION|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|6B] [DATA|L*1B] [LOW]`
 
 #### **11. SEND TO MULTIPLE USERS**
 
 Sendet Daten an mehrere spezifische Benutzer.
 
-`[HIGH] [FUNCTION=11|1B] [GROUP_ID|2B] [USERS_LENGTH=UL|2B] [DATA_LENGTH=DL|1B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [USER_DESTINATIONS|UL*2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [DATA|DL*1B] [LOW]`
+`[HIGH] [FUNCTION=11|1B] [PACKET_ID=random()|2B] [GROUP_ID|2B] [USERS_LENGTH=UL|2B] [DATA_LENGTH=DL|1B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [USER_DESTINATIONS|UL*2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|6B] [DATA|DL*1B] [LOW]`
 
 #### **12. BROADCAST INNER GROUP**
 
 Sendet Daten innerhalb einer Gruppe an alle Mitglieder.
 
-`[HIGH] [FUNCTION=12|1B] [GROUP_ID|2B] [DATA_LENGTH=L|1B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [DATA|L*1B] [LOW]`
+`[HIGH] [FUNCTION=12|1B] [PACKET_ID=random()|2B] [GROUP_ID|2B] [DATA_LENGTH=L|1B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|6B] [DATA|L*1B] [LOW]`
 
 #### **20. BROADCAST INNER NETWORK**
 
 Sendet Daten an alle Geräte im Netzwerk.
 
-`[HIGH] [FUNCTION=20|1B] [DATA_LENGTH=L|1B] [HASH|4B] [DATA|L*1B] [LOW]`
+`[HIGH] [FUNCTION=20|1B] [PACKET_ID=random()|2B] [DATA_LENGTH=L|1B] [HASH|6B] [DATA|L*1B] [LOW]`
 
 #### **21. SEND TO MAC INNER NETWORK**
 
 Sendet eine Nachricht an einen Benutzer im Netzwerk über die MAC-Adresse.
 
-`[HIGH] [FUNCTION=21|1B] [MAC_ADRESS|4B] [DATA_LENGTH=L|1B] [HASH|4B] [DATA|L*1B] [LOW]`
+`[HIGH] [FUNCTION=21|1B] [PACKET_ID=random()|2B] [MAC_ADRESS|4B] [DATA_LENGTH=L|1B] [HASH|6B] [DATA|L*1B] [LOW]`
 
+#### **30. PACKET DATA ERROR**
+
+Wenn der hash nicht mit den gesendeten Daten übereinstimmt, wird dieses Paket gesendet.
+
+`[HIGH] [FUNCTION=30|1B] [PACKET_ID=random()|2B] [ERROR_PACKET_ID=random()|2B] [HASH|1B] [LOW]`
+packet
 ---
 
 Dieses Protokoll gewährleistet eine sichere und zuverlässige Kommunikation über mehrere Geräte hinweg.
