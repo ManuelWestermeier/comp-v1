@@ -1,12 +1,12 @@
 # Netzwerkprotokoll V1
 
 Dies ist ein cryptographisches verschlüsseltes dezentrales **Netzwerkprotokoll** für die Kommunikation mit 433 MHz Sendern und Empfängern, das mehrere Gruppen unterstützt.
-Die Technologie kann auch für eine Kabelverbindung verwendet werden.
+Die Technologie kann auch für eine Kabelverbindungen verwendet werden.
 
 # Übersicht
 
-- **Wichtige Konzepte** - Estermal die informatischen und cryptographischen Grundprinzipien
-- **Signalzustände** - Wie werden die "Einser und Nullen" gesendet?
+- **Wichtige Konzepte** - Die informatischen und cryptographischen Grundprinzipien
+- **Signalzustände** - Wie werden die "Einsen und Nullen" gesendet?
 - **Paketformat** - Was ist eigentlich ein Paket?
 - **Grundlegende Datenübertragung** - Bytes/Zahlen senden und empfangen?
 - **Paketübertragungsregeln** - Ab wann kann ein Paket gesendet werden?
@@ -16,7 +16,7 @@ Die Technologie kann auch für eine Kabelverbindung verwendet werden.
 
 # Wichtige Konzepte
 
-- **Hashing**: Ein Hash is eine Einwegfunktion, die bei dem selben Input immer den selben Output ergibt. Von dem Output kann aber kein Input errächnet werden. Außerdem wird verändert sich der Output selbst bei kleinen Veränderungen stark. Alle Pakete enthalten einen Hash, um Fehler bei der datenübertragung des Pakets zu finden.
+- **Hashing**: Ein Hash is eine Einwegfunktion, die bei dem selben Input immer den selben Output ergibt. Von dem Output kann aber kein Input errechnet werden. Außerdem verändert sich der Output selbst bei kleinen Veränderungen stark. Alle Pakete enthalten einen Hash, um Fehler bei der datenübertragung des Pakets zu finden.
 - **Signierung**: Alle Pakete in einer Gruppe enthalten einen Hash, um zu validieren, welcher Benutzer es gesendet hat.
 - **Verschlüsselung**: Sensible Datenfelder werden unter Verwendung einer Kombination aus Passwort und Salt verschlüsselt.
 - **Salt**: Eine Zusatzdatenmenge zu dem Verschlüsselungsschlüssel, der Megngenanalysen von verschlüsselten Daten erschwert.
@@ -26,7 +26,7 @@ Die Technologie kann auch für eine Kabelverbindung verwendet werden.
 
 - Die Verbindung kann entweder auf `HIGH` (aktiv/Strom fliest) oder `LOW` (inaktiv/Strom fliest nicht) gesetzt werden.
 - Die Zustände können auch Binärziffern darstellen die zu Binärzahlen zusammengesätzt werden.
-- Der Zustand wird in delayTime (50 Mikrosekunden) intervallen geändert.
+- Der Zustand wird in einem Interval (delayTime (***50 Mikrosekunden***) Zeit pro runde) geändert.
 
 # Paketformat
 
@@ -365,6 +365,7 @@ Wenn der hash nicht mit den gesendeten Daten übereinstimmt, wird dieses Paket g
 
 `[HIGH] [FUNCTION=30|1B] [PACKET_ID=random()|2B] [ERROR_PACKET_ID=random()|2B] [HASH|1B] [LOW]`
 packet
+
 ---
 
 Dieses Protokoll gewährleistet eine sichere und zuverlässige Kommunikation über mehrere Geräte hinweg.
