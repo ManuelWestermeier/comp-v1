@@ -28,7 +28,7 @@ Das Netzwerkprotokoll teilt die Daren die über die Leitung gesendet werden in B
 Pakete setzen sich aus Chunks (kleinere Einheiten des Pakets mit Namen, Wert und Länge) zusammen.
 Diese werden in eckigen Klammmern angegeben.
 
-- `[HIGH]`: Markiert den Beginn des Pakets.
+- `[HIGH]`: Markiert den Beginn des Pakets. Es ist immer ein 1 Bit Chunk.
 - `[FUNCTION=x|1B]`: Ein festes 1-Byte-Feld, das den Zweck des Pakets definiert.
 - Weitere Felder sind im Format `[NAME=VALUE|LENGTH]` angegeben:
   - **NAME**: Name des Chunks.
@@ -36,7 +36,7 @@ Diese werden in eckigen Klammmern angegeben.
   - **LENGTH**: Feldgröße, angegeben als `xB` (Bytes) oder `xBit` (Bits). Hier können auch vorherige Chunk-Veriabeln verwändet werden.
   - Verschlüsselte Werte werden als `VALUE x (PASSWORD + SALT)` angegeben.
   - Felder können aus verketteten Chunks bestehen.
-- `[LOW]`: Markiert das Ende des Pakets.
+- `[LOW]`: Markiert das Ende des Pakets. Es ist immer ein 1 Bit Chunk.
 
 #### Beispiel:
 
@@ -132,14 +132,15 @@ RawPocket rawReadByteWF(uint8_t pin, int delayTime)
 
 1.  **Startbedingungen**:
 
-    - Um ein Paket zu senden, stellt der Sender sicher, dass die Verbindung für eine festgelegte "maximale Sendezeit" (12 _ delayTime) auf `LOW` bleibt.
-      Da pro Byte-Paket mindestens 1 mal der Zustand `HIGH` übertragen werden muss (am Start) und das Senden eines Byte-Paket ca. 11 _ delayTime + 1 _ delayTime Puffer dauert kann mann sagen, dass wenn die Leitung 12 _ delayTime (50 Microsekunden) lang auf `LOW` steht Nichts gesendet wird.
+    - Um ein Paket zu senden, stellt der Sender sicher, dass die Verbindung für eine festgelegte "maximale Sendezeit" (12 * delayTime) auf `LOW` bleibt.
+      Da pro Byte-Paket mindestens 1 mal der Zustand `HIGH` übertragen werden muss (am Start) und das Senden eines Byte-Paket ca. 11 * delayTime + 1 * delayTime (Puffer) dauert kann mann sagen, dass wenn die Leitung 12 * delayTime (50 Microsekunden) lang auf `LOW` steht Nichts gesendet wurde.
+      Und der Nutzer mit dem sicheren Paketlesen andfangen kann.
     - Wenn die Verbindung während dieses Zeitraums auf `HIGH` wechselt, muss der Sender den Versuch wiederholen.
 
 2.  **Kollisionsvermeidung**:
 
-    - Geräte verwenden die Zeit seit der letzten Paketübertragung, um für ein zufälliges Intervall zwischen 1000 und 50000 Mikroseunden zu warten, bevor sie versuchen, die Verbindung auf `HIGH` zu ziehen.
-    - Bleibt die Leitung auf `LOW`, kann der Sender mit der Übertragung des Pakets fortfahren.
+    - Geräte verwenden die Zeit seit der letzten Paketübertragung, um für ein zufälliges Intervall zwischen 1000 und 50000 Mikroseunden zu warten, bevor sie versuchen, die Verbindung auf `HIGH` zu ziehen. Wenn der Sender mehrmals versucht ein Paket zu senden, wird die maxiamle Zufallszeit verkürzt, dass es warscheinlicher wird, das Paket als nächstes zu senden. 
+    - Bleibt die Leitung bis die zufällige Wartezeit vorbei ist auf  `LOW`, kann der Sender mit der Übertragung des Pakets fortfahren.
 
 # Netzwerk-Hierarchie
 
