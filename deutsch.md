@@ -5,9 +5,10 @@ Die Technologie kann auch für eine Kabelverbindung verwendet werden.
 
 ### Übersicht
 
+- **Signalzustände**: Die Verbindung kann entweder auf `HIGH` (aktiv) oder `LOW` (inaktiv) gesetzt werden. Die Zustände können auch Binärziffern darstellen.
+- **Grundlegende Datenübertragung**
 - **Netzwerk-Hierarchie**
 - **Signierung**
-- **Signalzustände**: Die Verbindung kann entweder auf `HIGH` (aktiv) oder `LOW` (inaktiv) gesetzt werden. Die Zustände können auch Binärziffern darstellen.
 - **Übertragungstiming**:
   - Jedes Bit wird alle 50 Mikroseunden gesendet.
   - Bits werden in Bytes gruppiert, die wiederum in Pakete organisiert werden.
@@ -15,6 +16,83 @@ Die Technologie kann auch für eine Kabelverbindung verwendet werden.
   - Jedes Paket beginnt mit einem `[HIGH]`-Signal, um den Beginn zu kennzeichnen.
   - Die Paketdaten enthalten binäre Darstellungen verschiedener Felder.
   - Pakete enden mit einem `[LOW]`-Signal, das den Beginn des nächsten Pakets anzeigt.
+
+# Grundlegende Datenübertragung
+
+## Sender
+
+[NAME]=Zeit: 1x delayTime (50Microsekunden)
+Start Ende  
+[HIGH] [IS_FOLLOWING] [BIT_8] [BIT_7] [BIT_6] [BIT_5] [BIT_4] [BIT_3] [BIT_2] [BIT_1] [LOW]
+
+```cpp
+//WF=With isFollowingFlag
+void rawSendByteWF(uint8_t value, int pin, int delayTime, bool isFollowing)
+{
+    // begin des Pakets
+    digitalWrite(pin, HIGH);
+    delayMicroseconds(delayTime); // Pause
+
+    // das erste Bit zeigt, ob das Paket auf ein anders folgt oder der Start eines neuen Pakets ist
+    digitalWrite(pin, isFollowing ? HIGH : LOW);
+    delayMicroseconds(delayTime); // Pause
+
+    // Jeder Daten-Bit eines Bytes (8 Bits) senden (LSB-first)
+    for (uint8_t i = 0; i < 8; i++)
+    {
+        // Jedes Bit extrahieren und dann senden
+        bool bit = (value & (1 << i)) != 0;
+        digitalWrite(pin, bit ? HIGH : LOW);
+
+        // Pause
+        delayMicroseconds(delayTime);
+    }
+
+    // Ende des Pakets
+    digitalWrite(pin, LOW);
+    delayMicroseconds(delayTime); // Pause
+}
+```
+
+## Empfänger
+
+```cpp
+struct RawPocket
+{
+    bool isFollowing;
+    uint8_t data;
+};
+
+//WF=With isFollowingFlag
+RawPocket rawReadByteWF(uint8_t pin, int delayTime)
+{
+    RawPocket pocket;
+    pocket.data = 0;
+
+    // Auf das Startsignal warten
+    while (digitalRead(pin) != HIGH)
+        ;
+
+    // 1.5 * delayTime (50 Microsekunden) warten (damit es bei der Hälfte des nächsten Bits anfängt den Wert auszulesen)
+    delayMicroseconds(delayTime * 1.5);
+
+    // isFollowingFlag auslesen
+    pocket.isFollowing = (digitalRead(pin) == HIGH);
+    delayMicroseconds(delayTime);
+
+    // Jedes Bit auslesen und zu einem Byte zusammensätzen
+    for (uint8_t i = 0; i < 8; i++)
+    {
+        if (digitalRead(pin) == HIGH)
+        {
+            pocket.data |= (1 << i); // LSB-first
+        }
+        delayMicroseconds(delayTime);
+    }
+
+    return pocket;
+}
+```
 
 # Netzwerk-Hierarchie
 
@@ -70,14 +148,17 @@ Diese Hierarchie gewährleistet eine strukturierte Organisation der Benutzer inn
    Um eine Nachricht zu signieren, sendet der Benutzer:
 
    - Den ursprünglichen zufälligen Wert (`SIGN_VALUE`)
-   - Den nächsten gehashten zufälligen Wert (`NEXT_SIGN_VALUE_HASH`), um die nächste Nachricht zu identifizieren (dies muss im gleichen Paket gesendet werden)
+   - Den nächsten gehashten zufälligen Wert (`NEXT_SIGN_VALUE_HASH`), um die nächste Nachricht zu identifizieren (diese muss im gleichen Paket gesendet werden)
 
-Benutzer die überprüfen wollen, ob eine Nachricht vom richtigen Benutzer gesendet wurde, können den HASH des Gesendeten `SIGN_VALUE_HASH` mit dem Hash `SIGN_VALUE_HASH` abgleichen.
-Dies stellt sicher, dass jede Nachricht eindeutig identifizierbar ist und den Hash für die folgende Nachricht festlegt.  
+Benutzer die überprüfen wollen, ob eine Nachricht von dem richtigen Benutzer gesendet wurde, können den HASH des Gesendeten Werts `SIGN_VALUE` mit dem Hash `SIGN_VALUE_HASH` abgleichen.
+
+Da eine Hashfunktion eine Einwegfunktion ist kann kein übereinstimmender Wert ausgängig von dem Hash generiert werden.
+Dies stellt sicher, dass jede Nachricht eindeutig identifizierbar ist.
 
 Das Format lautet:
-1. Erstes Packet: (` ... [LAST_SIGN_VALUE|4B] ... `)
-2. Folgende Packete: (` ... [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] ... `).
+
+1. Erstes Packet: (`... [CURRENT_SIGN_HASH|4B] ...`)
+2. Folgende Packete: (`... [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] ...`).
 
 # Paketübertragungsregeln
 
