@@ -1,144 +1,133 @@
 # Netzwerkprotokoll V1
 
-Dies ist ein multigruppen-verschlüsseltes **Netzwerkprotokoll**, entwickelt für die Kommunikation mithilfe von 433-MHz-Sendern und -Empfängern.
+Dies ist ein verschlüsseltes **Netzwerkprotokoll** für die Kommunikation mit 433 MHz Sendern und Empfängern, das mehrere Gruppen unterstützt.
 
-### Überblick
+### Übersicht
 
-- **Netzwerkhierarchie**
-- **Signaturen**
-- **Signalzustände**: Die Verbindung kann entweder auf `HIGH` (aktiv) gezogen werden oder bleibt `LOW` (inaktiv).
-- **Übertragungszeit**:
-  
-  - Jedes Bit wird alle 1000 Mikrosekunden gesendet.
+- **Netzwerk-Hierarchie**
+- **Signierung**
+- **Signalzustände**: Die Verbindung kann entweder auf `HIGH` (aktiv) oder `LOW` (inaktiv) gesetzt werden.
+- **Übertragungstiming**:
+  - Jedes Bit wird alle 1000 Mikroseunden gesendet.
   - Bits werden in Bytes gruppiert, die wiederum in Pakete organisiert werden.
 - **Paketstruktur**:
-  
-  - Jedes Paket beginnt mit einem `[HIGH]`-Signal zur Markierung des Starts.
-  - Die Paketdaten enthalten Binärdarstellungen verschiedener Felder.
-  - Pakete enden mit einem `[LOW]`-Signal, das den Anfang des nächsten Pakets anzeigt.
+  - Jedes Paket beginnt mit einem `[HIGH]`-Signal, um den Beginn zu kennzeichnen.
+  - Die Paketdaten enthalten binäre Darstellungen verschiedener Felder.
+  - Pakete enden mit einem `[LOW]`-Signal, das den Beginn des nächsten Pakets anzeigt.
 
-* * *
+# Netzwerk-Hierarchie
 
-## Netzwerkhierarchie
+Das **NETZWERK** ist die physische Verbindung, die mit 433 MHz RF-Modulen hergestellt wird.
 
-Das **Netzwerk** ist die physische Verbindung, die durch 433-MHz-RF-Module hergestellt wird.
+Die **GRUPPEn** sind virtuelle Netzwerke, die Verschlüsselung für eine sichere Kommunikation implementieren.  
+Benutzer innerhalb einer GRUPPE können den Verbindungsprozess verwalten oder bis zu **65.536 GRUPPEn** erstellen.  
+Jede GRUPPE kann bis zu **65.536 Benutzer** haben.  
+Jeder Benutzer ist Mitglied einer oder mehrerer GRUPPEn und kann gleichzeitig mit mehreren Netzwerken verbunden sein.
 
-**Gruppen** sind virtuelle Netzwerke, die zur sicheren Kommunikation Verschlüsselung implementieren.  
-Nutzer innerhalb einer Gruppe können Verbindungen verwalten oder bis zu **65.536 Gruppen** erstellen.  
-Jede Gruppe kann bis zu **65.536 Nutzer** haben.  
-Ein Nutzer kann Mitglied in mehreren Gruppen sein und sich gleichzeitig mit mehreren Netzwerken verbinden.
+Benutzer können folgende Aktionen durchführen:
 
-**Funktionen der Nutzer**:
+- Verschlüsselte Nachrichten an andere Benutzer innerhalb der GRUPPE senden.
+- Nachrichten an alle Mitglieder der GRUPPE broadcasten.
+- Nachrichten an das gesamte NETZWERK broadcasten.
 
-- Verschlüsselte Nachrichten an andere Nutzer innerhalb der Gruppe senden.
-- Nachrichten an alle Mitglieder der Gruppe broadcasten.
-- Nachrichten an das gesamte Netzwerk broadcasten.
-
-### Hierarchie-Übersicht
+## Übersicht der Hierarchie
 
 ```plaintext
-
-
-plaintext
-
-
-Code kopieren
-Netzwerk
-  ├── Gruppe 1
-  │     ├── Nutzer 1
-  │     ├── Nutzer 2
-  │     └── Nutzer 3
+NETZWERK
+  ├── GRUPPE 1
+  │     ├── BENUTZER 1
+  │     ├── BENUTZER 2
+  │     └── BENUTZER 3
             ...
-  ├── Gruppe 2
-  │     ├── Nutzer 27224
-  │     └── Nutzer 2885
+  ├── GRUPPE 2
+  │     ├── BENUTZER 27224
+  │     └── BENUTZER 2885
             ...
-  └── Gruppe 3
-        ├── Nutzer 6
-        ├── Nutzer 7
-        ├── Nutzer 8
-        └── Nutzer 9
+  └── GRUPPE 3
+        ├── BENUTZER 6
+        ├── BENUTZER 7
+        ├── BENUTZER 8
+        └── BENUTZER 9
             ...
   ...
 ```
 
-Diese Hierarchie gewährleistet eine strukturierte Organisation der Nutzer in sicheren und skalierbaren virtuellen Gruppen, unterstützt durch ein robustes physisches Netzwerk.
+Diese Hierarchie gewährleistet eine strukturierte Organisation der Benutzer innerhalb sicherer und skalierbarer virtueller GRUPPEn, unterstützt durch ein robustes physisches NETZWERK.
 
-* * *
+# Signierung
 
-## Signaturen
+1. **Generierung eines zufälligen Werts**  
+   Der Benutzer generiert einen zufälligen 4-Byte-Wert, bezeichnet als `SIGN_VALUE`.
 
-1. **Zufallswert erzeugen**  
-   Der Nutzer generiert einen zufälligen 4-Byte-Wert, genannt `SIGN_VALUE`.
-2. **Hash-Wert berechnen**  
-   Der Nutzer hasht `SIGN_VALUE` und extrahiert die letzten 4 Bytes des Hashes, genannt `SIGN_VALUE_HASH`.
-3. **Hash teilen**  
-   Der Wert von `SIGN_VALUE_HASH` wird mit allen Gruppenmitgliedern geteilt.
-4. **Nachricht signieren**  
-   Um eine Nachricht zu signieren, sendet der Nutzer:
-   
-   - Den ursprünglichen Zufallswert (`SIGN_VALUE`).
-   - Den Hash des nächsten Zufallswertes (`NEXT_SIGN_VALUE_HASH`), um die nächste Nachricht zu identifizieren (dies muss im gleichen Paket gesendet werden).
+2. **Hashen des Werts**  
+   Der Benutzer hasht den `SIGN_VALUE` und extrahiert die letzten 4 Bytes des Hashs, bezeichnet als `SIGN_VALUE_HASH`.
 
-Dies stellt sicher, dass jede Nachricht eindeutig identifizierbar ist und den Hash für die folgende Nachricht etabliert.
+3. **Teilen des Hashs**  
+   Der Wert von `SIGN_VALUE_HASH` wird mit allen Mitgliedern der Gruppe geteilt.
 
-* * *
+4. **Signieren einer Nachricht**  
+   Um eine Nachricht zu signieren, sendet der Benutzer:
 
-## Paketübertragungsregeln
+   - Den ursprünglichen zufälligen Wert (`SIGN_VALUE`)
+   - Den nächsten gehashten zufälligen Wert (`NEXT_SIGN_VALUE_HASH`), um die nächste Nachricht zu identifizieren (dies muss im gleichen Paket gesendet werden)
 
-1. **Startbedingungen**:
-   
-   - Um ein Paket zu senden, stellt der Sender sicher, dass die Verbindung für eine festgelegte maximale Sendezeit `LOW` bleibt.
-   - Geht die Verbindung währenddessen auf `HIGH`, muss der Sender erneut versuchen.
-2. **Kollisionsvermeidung**:
-   
-   - Geräte verwenden die Zeit seit der letzten Paketübertragung, um ein zufälliges Intervall zwischen 1000 und 50.000 Mikrosekunden zu warten, bevor sie die Verbindung auf `HIGH` ziehen.
-   - Bleibt die Leitung `LOW`, kann der Sender ein Paket übertragen.
+Dies stellt sicher, dass jede Nachricht eindeutig identifizierbar ist und den Hash für die folgende Nachricht festlegt.  
+Das Format lautet (` ... [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] ... `).
 
-* * *
+# Paketübertragungsregeln
 
-## Paketformat
+1.  **Startbedingungen**:
+
+    - Um ein Paket zu senden, stellt der Sender sicher, dass die Verbindung für eine festgelegte _maximale Sendezeit_ auf `LOW` bleibt.
+    - Wenn die Verbindung während dieses Zeitraums auf `HIGH` wechselt, muss der Sender den Versuch wiederholen.
+
+2.  **Kollisionsvermeidung**:
+
+    - Geräte verwenden die Zeit seit der letzten Paketübertragung, um für ein zufälliges Intervall zwischen 1000 und 50000 Mikroseunden zu warten, bevor sie versuchen, die Verbindung auf `HIGH` zu ziehen.
+    - Bleibt die Leitung auf `LOW`, kann der Sender mit der Übertragung des Pakets fortfahren.
+
+# Paketformat
 
 Jedes Paket folgt einem strukturierten Format:
 
-- `[HIGH]`: Markiert den Start des Pakets.
+- `[HIGH]`: Markiert den Beginn des Pakets.
 - `[FUNCTION=x|1B]`: Ein festes 1-Byte-Feld, das den Zweck des Pakets definiert.
-- Weitere Felder werden im Format `NAME=VALUE|LENGTH` angegeben:
-  
+- Weitere Felder sind im Format `NAME=VALUE|LENGTH` angegeben:
   - **NAME**: Name des Feldes.
   - **VALUE**: Wert des Feldes oder dessen Standardwert.
-  - **LENGTH**: Feldgröße in `xB` (Bytes) oder `xBit` (Bits).
-  - Verschlüsselte Werte werden als `VALUE x (PASSWORD + SALT)` dargestellt.
-  - Felder können aus zusammengesetzten Daten bestehen.
+  - **LENGTH**: Feldgröße, angegeben als `xB` (Bytes) oder `xBit` (Bits).
+  - Verschlüsselte Werte werden als `VALUE x (PASSWORD + SALT)` angegeben.
+  - Felder können aus verketteten Chunks bestehen.
 
 Beispiel:
 
 `[HIGH] [FUNCTION=x|1B] ... [LOW]`
 
-* * *
+---
 
-## Paketarten
+# Pakettypen
 
-### Autorisierung
+## Autorisieren
 
 #### **1. IS HERE**
 
-Wird verwendet, um Gruppen im Netzwerk zu entdecken.
+Wird verwendet, um Netzwerkgruppen zu entdecken.
 
 `[HIGH] [FUNCTION=1|1B] [ANSWER_ID=random()|1B] [GROUP_NAME_LENGTH=L|1B] [GROUP_NAME_STRING=...|L*1B] [HASH|1B] [LOW]`
 
 #### **2. HERE IS**
 
-##### JA
+##### YES
 
-Bestätigt die Existenz der Gruppe.  
-Alle Nutzer der Gruppe können antworten, jedoch antwortet der erste Nutzer mit der kürzesten zufälligen Verzögerungszeit.
+Bestätigt die Existenz der Gruppe.
+
+Alle Benutzer in der Gruppe können auf dieses Paket antworten, aber der erste Benutzer in der Gruppe — bestimmt durch die kürzeste zufällige Verzögerungszeit — sendet die Antwort.
 
 `[HIGH] [FUNCTION=2|1B] [ANSWER_ID|1B] [GROUP_ID|2B] [CONNECT_ID|1B] [VERIFY_BYTES|2B] [SALT=random()|1B] [HASH|2B] [LOW]`
 
-##### NEIN
+##### NO
 
-Keine Antwort, falls die Gruppe nicht existiert (Timeout: 1–2 Sekunden).
+Keine Antwort, wenn die Gruppe nicht vorhanden ist (Timeout: 1-2 Sekunden).
 
 #### **3. JOIN**
 
@@ -146,8 +135,96 @@ Anfrage zum Beitreten einer Gruppe.
 
 `[HIGH] [FUNCTION=3|1B] [GROUP_ID|2B] [CONNECT_ID|1B] [VERIFY_BYTES x (PASSWORD + SALT)|2B] [CURRENT_SIGN_HASH|4B] [HASH|2B] [LOW]`
 
-... *(weiterführende Paketarten analog übersetzen)* ...
+#### **4. ACCEPT**
 
-* * *
+Antwort auf eine Beitrittsanfrage.
 
-Dieses Netzwerkprotokoll ermöglicht eine sichere und zuverlässige Kommunikation zwischen mehreren Geräten.
+Alle Benutzer in der Gruppe können auf dieses Paket antworten, aber der erste Benutzer in der Gruppe — bestimmt durch die kürzeste zufällige Verzögerungszeit — sendet die Antwort.
+
+##### YES
+
+Bestätigt die Existenz der Gruppe.
+
+`[HIGH] [FUNCTION=4|1B] [GROUP_ID|2B] [CONNECT_ID|1B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [CURRENT_SALT|2B] [SALT_MODIFIER_PER_PACKET=(MODIFIER + VALUE)|2B] [HASH|2B] [LOW]`
+
+##### NO
+
+Keine Antwort, wenn die Gruppe nicht vorhanden ist (Timeout: 1-2 Sekunden).
+
+#### **5. JOINED**
+
+Bestätigt den erfolgreichen Beitritt zur Gruppe.
+
+`[HIGH] [FUNCTION=5|1B] [GROUP_ID|2B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [CURRENT_SALT|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|2B] [LOW]`
+
+---
+
+## Erhalten der Signaturen der Benutzer in der Gruppe
+
+#### **6. WHO IS IN THE GROUP**
+
+Fragt, wer in der Gruppe ist.
+
+`[HIGH] [FUNCTION=6|1B] [GROUP_ID|2B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [CURRENT_SALT|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|2B] [LOW]`
+
+#### **7. I AM IN THE GROUP**
+
+Meldet, dass Sie in der Gruppe sind.
+
+`[HIGH] [FUNCTION=7|1B] [GROUP_ID|2B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|2B] [LOW]`
+
+#### **8. WRONG SIGN**
+
+Weist darauf hin, wenn ein Benutzer den falschen Signatur-Hash sendet.
+
+`[HIGH] [FUNCTION=8|1B] [GROUP_ID|2B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [USER_WITH_WRONG_SIGN_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|2B] [LOW]`
+
+#### **9. WRONG SIGN PACKET IS CORRUPTED**
+
+Weist darauf hin, wenn ein Hacker fälschlicherweise behauptet, ein Benutzer habe eine falsche Signatur, die jedoch gültig ist.
+
+`[HIGH] [FUNCTION=9|1B] [GROUP_ID|2B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [HACKER_USER_WITH_WRONG_SIGN_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|2B] [LOW]`
+
+---
+
+## Senden
+
+#### **10. SEND**
+
+Sendet Daten an einen bestimmten Benutzer.
+
+`[HIGH] [FUNCTION=10|1B] [GROUP_ID|2B] [DATA_LENGTH=L|1B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [USER_DESTINATION|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [DATA|L*1B] [LOW]`
+
+#### **11. SEND TO MULTIPLE USERS**
+
+Sendet Daten an mehrere spezifische Benutzer.
+
+`[HIGH] [FUNCTION=11|1B] [GROUP_ID|2B] [USERS_LENGTH=UL|2B] [DATA_LENGTH=DL|1B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [USER_DESTINATIONS|UL*2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [DATA|DL*1B] [LOW]`
+
+#### **12. BROADCAST INNER GROUP**
+
+Sendet Daten innerhalb einer Gruppe an alle Mitglieder.
+
+`[HIGH] [FUNCTION=12|1B] [GROUP_ID|2B] [DATA_LENGTH=L|1B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [DATA|L*1B] [LOW]`
+
+#### **20. BROADCAST INNER NETWORK**
+
+Sendet Daten an alle Geräte im Netzwerk.
+
+`[HIGH] [FUNCTION=20|1B] [DATA_LENGTH=L|1B] [HASH|4B] [DATA|L*1B] [LOW]`
+
+#### **21. SEND TO MAC INNER NETWORK**
+
+Sendet eine Nachricht an einen Benutzer im Netzwerk über die MAC-Adresse.
+
+`[HIGH] [FUNCTION=21|1B] [MAC_ADRESS|4B] [DATA_LENGTH=L|1B] [HASH|4B] [DATA|L*1B] [LOW]`
+
+---
+
+### Wichtige Konzepte
+
+- **Hashing**: Alle Pakete enthalten einen Hash, um die Integrität zu validieren.
+- **Signierung**: Alle Pakete in einer Gruppe enthalten einen Hash, um zu validieren, welcher Benutzer es gesendet hat.
+- **Verschlüsselung**: Sensible Datenfelder werden unter Verwendung einer Kombination aus Passwort und Salz verschlüsselt.
+
+Dieses Protokoll gewährleistet eine sichere und zuverlässige Kommunikation über mehrere Geräte hinweg.
