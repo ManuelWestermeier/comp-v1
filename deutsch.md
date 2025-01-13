@@ -207,8 +207,8 @@ Dies stellt sicher, dass jede Nachricht eindeutig identifizierbar ist.
 
 Das Format lautet:
 
-1. Erstes Packet: (`... [CURRENT_SIGN_HASH|4B] ...`)
-2. Folgende Packete: (`... [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] ...`).
+1. Erstes Packet: (`... [CURRENT_SIGN_HASH|4B] ...`) (Dies zeigt den Nutzern den Aktuellen Hash).
+2. Folgende Packete: (`... [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] ...`) (Kann ein Paket "unterschreiben" und Bringt den Hash für das Nächste paket mit).
 
 ---
 
