@@ -6,7 +6,7 @@ Die Technologie kann auch für eine Kabelverbindung verwendet werden.
 # Übersicht
 
 - **Signalzustände**: Wie werden die "Einser und Nuller" gesendet
-- **Grundlegende Datenübertragung** - Bytes senden und empfangen
+- **Grundlegende Datenübertragung** - Bytes/Zahlen senden und empfangen
 - **Übertragungstiming**:
   - Jedes Bit wird alle 50 Mikrosekunden gesendet.
   - Bits werden in Bytes gruppiert, die wiederum in Pakete organisiert werden.
@@ -16,15 +16,21 @@ Die Technologie kann auch für eine Kabelverbindung verwendet werden.
 
 # Signalzustände
 
-Die Verbindung kann entweder auf `HIGH` (aktiv) oder `LOW` (inaktiv) gesetzt werden. Die Zustände können auch Binärziffern darstellen
+- Die Verbindung kann entweder auf `HIGH` (aktiv/Strom fliest) oder `LOW` (inaktiv/Strom fliest nicht) gesetzt werden. 
+- Die Zustände können auch Binärziffern darstellen die zu Binärzahlen zusammengesätzt werden.
 
 # Grundlegende Datenübertragung
 
 ## Sender
 
-[NAME]=Zeit: 1x delayTime (50Microsekunden)
-Start Ende  
-[HIGH] [IS_FOLLOWING] [BIT_8] [BIT_7] [BIT_6] [BIT_5] [BIT_4] [BIT_3] [BIT_2] [BIT_1] [LOW]
+In den Eckigen Klammern ist ein Wert. Dieser Wert zeigt den Zustand (`HIGH`/`LOW`).
+`HIGH` steht für "ja" oder "1", `LOW` steht für "nein" oder 0.
+- Am Anfang wird die "Leitung" auf `HIGH` gesetzt, was den Start des Bytepakets kennzeichnet.
+- Am Ende wird die "Leitung" auf `LOW` gesetzt, was dafür sorgt, dass die Letung bei dem nächsten Paket am Anfang wieder auf `HIGH` gestzt werden kann (Zustandsänderung). 
+
+#### Einfache Darstellung: [XY] dauern ein Zeitinterval (delayTime/50microsekunden)
+
+`[HIGH] [IS_FOLLOWING] [BIT_8] [BIT_7] [BIT_6] [BIT_5] [BIT_4] [BIT_3] [BIT_2] [BIT_1] [LOW]`
 
 ```cpp
 //WF=With isFollowingFlag
