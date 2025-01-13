@@ -72,6 +72,8 @@ This hierarchy ensures a structured organization of users within secure and scal
    - The next hashed random value (`NEXT_SIGN_VALUE_HASH`) to identify the next message (it have to be send in the same pocket)
 
 This ensures that each message is uniquely identifiable and establishes the hash for the following message.
+The format is (` ... [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] ... `).
+
 
 # Packet Transmission Rules
 
@@ -182,7 +184,7 @@ Indicate if a user sends the wrong sign hash.
 
 Indicate when a hacker falsely claims a user has a wrong sign, but the sign is valid.
 
-`[HIGH] [FUNCTION=8|1B] [GROUP_ID|2B] /* Encrypted data starts here */ [USER_ID|2B] [HACKER_USER_WITH_WRONG_SIGN_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|2B] [LOW]`
+`[HIGH] [FUNCTION=9|1B] [GROUP_ID|2B] /* Encrypted data starts here */ [USER_ID|2B] [HACKER_USER_WITH_WRONG_SIGN_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|2B] [LOW]`
 
 ---
 
