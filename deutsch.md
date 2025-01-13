@@ -1,15 +1,15 @@
 # Netzwerkprotokoll V1
 
-Dies ist ein verschlüsseltes **Netzwerkprotokoll** für die Kommunikation mit 433 MHz Sendern und Empfängern, das mehrere Gruppen unterstützt.
-Die Technologie kann auch fir eine Kabelverbindung verwendet werden.
+Dies ist ein verschlüsseltes dezentrales **Netzwerkprotokoll** für die Kommunikation mit 433 MHz Sendern und Empfängern, das mehrere Gruppen unterstützt.
+Die Technologie kann auch für eine Kabelverbindung verwendet werden.
 
 ### Übersicht
 
 - **Netzwerk-Hierarchie**
 - **Signierung**
-- **Signalzustände**: Die Verbindung kann entweder auf `HIGH` (aktiv) oder `LOW` (inaktiv) gesetzt werden.
+- **Signalzustände**: Die Verbindung kann entweder auf `HIGH` (aktiv) oder `LOW` (inaktiv) gesetzt werden. Die Zustände können auch Binärziffern darstellen.
 - **Übertragungstiming**:
-  - Jedes Bit wird alle 1000 Mikroseunden gesendet.
+  - Jedes Bit wird alle 50 Mikroseunden gesendet.
   - Bits werden in Bytes gruppiert, die wiederum in Pakete organisiert werden.
 - **Paketstruktur**:
   - Jedes Paket beginnt mit einem `[HIGH]`-Signal, um den Beginn zu kennzeichnen.
@@ -18,23 +18,23 @@ Die Technologie kann auch fir eine Kabelverbindung verwendet werden.
 
 # Netzwerk-Hierarchie
 
-Das **NETZWERK** ist die physische Verbindung, die mit 433 MHz RF-Modulen hergestellt wird.
+Das **NETZWERK** ist die physische Verbindung, die mit 433 MHz RF-Modulen (oder mit einer Kabelverbindung) hergestellt wird.
 
 Die **GRUPPEn** sind virtuelle Netzwerke, die Verschlüsselung für eine sichere Kommunikation implementieren.  
-Benutzer innerhalb einer GRUPPE können den Verbindungsprozess verwalten oder bis zu **65.536 GRUPPEn** erstellen.  
-Jede GRUPPE kann bis zu **65.536 Benutzer** haben.  
+Benutzer innerhalb einer GRUPPE können den Verbindungsprozess verwalten, daten senden oder bis zu **65.536 BENUTZER** einladen.  
 Jeder Benutzer ist Mitglied einer oder mehrerer GRUPPEn und kann gleichzeitig mit mehreren Netzwerken verbunden sein.
 
 Benutzer können folgende Aktionen durchführen:
 
 - Verschlüsselte Nachrichten an andere Benutzer innerhalb der GRUPPE senden.
 - Nachrichten an alle Mitglieder der GRUPPE broadcasten.
-- Nachrichten an das gesamte NETZWERK broadcasten.
+- Nachrichten an das gesamte NETZWERK senden.
+- Nachrichten im gesamte NETZWERK mit MAC-Adressen senden.
 
 ## Übersicht der Hierarchie
 
 ```plaintext
-NETZWERK
+NETZWERK (433Mhz / Kabelverbindung)
   ├── GRUPPE 1
   │     ├── BENUTZER 1
   │     ├── BENUTZER 2
@@ -61,7 +61,7 @@ Diese Hierarchie gewährleistet eine strukturierte Organisation der Benutzer inn
    Der Benutzer generiert einen zufälligen 4-Byte-Wert, bezeichnet als `SIGN_VALUE`.
 
 2. **Hashen des Werts**  
-   Der Benutzer hasht den `SIGN_VALUE` und extrahiert die letzten 4 Bytes des Hashs, bezeichnet als `SIGN_VALUE_HASH`.
+   Der Benutzer hasht den Wert `SIGN_VALUE` und extrahiert die letzten 4 Bytes des Hashs, bezeichnet als `SIGN_VALUE_HASH`.
 
 3. **Teilen des Hashs**  
    Der Wert von `SIGN_VALUE_HASH` wird mit allen Mitgliedern der Gruppe geteilt.
@@ -72,8 +72,12 @@ Diese Hierarchie gewährleistet eine strukturierte Organisation der Benutzer inn
    - Den ursprünglichen zufälligen Wert (`SIGN_VALUE`)
    - Den nächsten gehashten zufälligen Wert (`NEXT_SIGN_VALUE_HASH`), um die nächste Nachricht zu identifizieren (dies muss im gleichen Paket gesendet werden)
 
+Benutzer die überprüfen wollen, ob eine Nachricht vom richtigen Benutzer gesendet wurde, können den HASH des Gesendeten `SIGN_VALUE_HASH` mit dem Hash `SIGN_VALUE_HASH` abgleichen.
 Dies stellt sicher, dass jede Nachricht eindeutig identifizierbar ist und den Hash für die folgende Nachricht festlegt.  
-Das Format lautet (` ... [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] ... `).
+
+Das Format lautet:
+1. Erstes Packet: (` ... [LAST_SIGN_VALUE|4B] ... `)
+2. Folgende Packete: (` ... [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] ... `).
 
 # Paketübertragungsregeln
 
