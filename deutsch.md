@@ -5,13 +5,22 @@ Die Technologie kann auch für eine Kabelverbindung verwendet werden.
 
 # Übersicht
 
-- **Signalzustände**: Wie werden die "Einser und Nuller" gesendet
-- **Paketformat** - Was ist eigentlich ein Paket
-- **Grundlegende Datenübertragung** - Bytes/Zahlen senden und empfangen
-- **Paketübertragungsregeln**:
-- **Netzwerk-Hierarchie** - Wie ist das Netzwerk aufgebaut
-- **Signierung** - Wie kann sich jeder im Netzwerk sicher sein, dass ein Paket wirklich von einem bestimmten Benutzer gesendet wurde
-- **Paketstruktur** - Wie sind die Pakete aufgebaut und wie funktioniert das Netzwerkprotokoll
+- **Wichtige Konzepte** - Estermal die informatischen und cryptographischen Grundprinzipien
+- **Signalzustände** - Wie werden die "Einser und Nullen" gesendet?
+- **Paketformat** - Was ist eigentlich ein Paket?
+- **Grundlegende Datenübertragung** - Bytes/Zahlen senden und empfangen?
+- **Paketübertragungsregeln** - Ab wann kann ein Paket gesendet werden?
+- **Netzwerk-Hierarchie** - Wie ist das Netzwerk aufgebaut?
+- **Signierung** - Wie kann sich jeder im Netzwerk sicher sein, dass ein Paket wirklich von einem bestimmten Benutzer gesendet wurde?
+- **Paketstruktur** - Wie sind die Pakete aufgebaut und wie funktioniert das Netzwerkprotokoll?
+
+# Wichtige Konzepte
+
+- **Hashing**: Ein Hash is eine Einwegfunktion, die bei dem selben Input immer den selben Output ergibt. Von dem Output kann aber kein Input errächnet werden. Außerdem wird verändert sich der Output selbst bei kleinen Veränderungen stark. Alle Pakete enthalten einen Hash, um Fehler bei der datenübertragung des Pakets zu finden.
+- **Signierung**: Alle Pakete in einer Gruppe enthalten einen Hash, um zu validieren, welcher Benutzer es gesendet hat.
+- **Verschlüsselung**: Sensible Datenfelder werden unter Verwendung einer Kombination aus Passwort und Salt verschlüsselt.
+- **Salt**: Eine Zusatzdatenmenge zu dem Verschlüsselungsschlüssel, der Megngenanalysen von verschlüsselten Daten erschwert.
+- **Binäre Zahlen**: Ein Zahlensystem das nur mit den Ziffern 1 und 0 arbeitet. In diesem Fall Strom an (`HIGH`) als 1 und Strom aus als 0 (`LOW`).  
 
 # Signalzustände
 
@@ -132,10 +141,34 @@ RawPocket rawReadByteWF(uint8_t pin, int delayTime)
 
 1.  **Startbedingungen**:
 
-    - Um ein Paket zu senden, stellt der Sender sicher, dass die Verbindung für eine festgelegte "maximale Sendezeit" (12 _ delayTime) auf `LOW` bleibt.
-      Da pro Byte-Paket mindestens 1 mal der Zustand `HIGH` übertragen werden muss (am Start) und das Senden eines Byte-Paket ca. 11 _ delayTime + 1 _ delayTime (Puffer) dauert kann mann sagen, dass wenn die Leitung 12 _ delayTime (50 Microsekunden) lang auf `LOW` steht Nichts gesendet wurde.
+    - Um ein Paket zu senden, stellt der Sender sicher, dass die Verbindung für eine festgelegte "maximale Sendezeit" (13 _ delayTime) auf `LOW` bleibt.
+      Da pro Byte-Paket mindestens 1 mal der Zustand `HIGH` übertragen werden muss (am Start) und das Senden eines Byte-Paket ca. 12 _ delayTime + 1 _ delayTime (Puffer) dauert kann mann sagen, dass wenn die Leitung 13 _ delayTime (50 Microsekunden) lang auf `LOW` steht Nichts gesendet wurde.
       Und der Nutzer mit dem sicheren Paketlesen andfangen kann.
     - Wenn die Verbindung während dieses Zeitraums auf `HIGH` wechselt, muss der Sender den Versuch wiederholen.
+
+### Code Beispiel
+
+```cpp
+void waitForBytePacketEnd()
+{
+    // den Zeitpunkt, an dem (connection.sendDelay * 13) lange nichts gesändet wurde, was heißt, dass das letzte Paket zu Ende ist
+    auto timeToWait = micros() + (connection.sendDelay * 13);
+    while (true)
+    {
+        auto now = micros();
+        //wenn lange genug gewartet wurde, returnt die funktion und der code dahinter kann reibungslos ausgeführt werden.
+        if (now > timeToWait)
+        {
+            return;
+        }
+        // wenn doch etwas gesendet wird, wird der timer zurück gesetzt
+        else if (digitalRead(connection.inpPin) == HIGH)
+        {
+            auto timeToWait = now + (connection.sendDelay * 13);
+        }
+    }
+}
+```
 
 2.  **Kollisionsvermeidung**:
 
@@ -327,11 +360,5 @@ Sendet eine Nachricht an einen Benutzer im Netzwerk über die MAC-Adresse.
 `[HIGH] [FUNCTION=21|1B] [MAC_ADRESS|4B] [DATA_LENGTH=L|1B] [HASH|4B] [DATA|L*1B] [LOW]`
 
 ---
-
-### Wichtige Konzepte
-
-- **Hashing**: Alle Pakete enthalten einen Hash, um die Integrität zu validieren.
-- **Signierung**: Alle Pakete in einer Gruppe enthalten einen Hash, um zu validieren, welcher Benutzer es gesendet hat.
-- **Verschlüsselung**: Sensible Datenfelder werden unter Verwendung einer Kombination aus Passwort und Salz verschlüsselt.
 
 Dieses Protokoll gewährleistet eine sichere und zuverlässige Kommunikation über mehrere Geräte hinweg.
