@@ -141,8 +141,8 @@ RawPacket rawReadByteWF(uint8_t pin, int delayTime)
 
 1.  **Startbedingungen**:
 
-    - Um ein Paket zu senden, stellt der Sender sicher, dass die Verbindung für eine festgelegte "maximale Sendezeit" (13 _ delayTime) auf `LOW` bleibt.
-      Da pro Byte-Paket mindestens 1 mal der Zustand `HIGH` übertragen werden muss (am Start) und das Senden eines Byte-Paket ca. 12 _ delayTime + 1 _ delayTime (Puffer) dauert kann mann sagen, dass wenn die Leitung 13 _ delayTime (50 Microsekunden) lang auf `LOW` steht Nichts gesendet wurde.
+    - Um ein Paket zu senden, stellt der Sender sicher, dass die Verbindung für eine festgelegte "maximale Sendezeit" (13 `*` delayTime) auf `LOW` bleibt.
+      Da pro Byte-Paket mindestens 1 mal der Zustand `HIGH` übertragen werden muss (am Start) und das Senden eines Byte-Paket ca. 12 `*` delayTime + 1 `*` delayTime (Puffer) dauert kann mann sagen, dass wenn die Leitung 13 `*` delayTime (50 Microsekunden) lang auf `LOW` steht Nichts gesendet wurde.
       Und der Nutzer mit dem sicheren Paketlesen andfangen kann.
     - Wenn die Verbindung während dieses Zeitraums auf `HIGH` wechselt, muss der Sender den Versuch wiederholen.
 
