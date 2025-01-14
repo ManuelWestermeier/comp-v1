@@ -16,7 +16,7 @@ Die Technologie kann auch für eine Kabelverbindungen verwendet werden.
 
 # Wichtige Konzepte
 
-- **Hashing**: Ein Hash is eine Einwegfunktion, die bei dem selben Input immer den selben Output ergibt. Von dem Output kann aber kein Input errechnet werden. Außerdem verändert sich der Output selbst bei kleinen Veränderungen stark. Alle Pakete enthalten einen Hash, um Fehler bei der datenübertragung des Pakets zu finden.
+- **Hashing**: Ein Hash is eine Einwegfunktion, die bei dem selben Input immer den selben Output ergibt. Von dem Output kann aber kein Input errechnet werden. Außerdem verändert sich der Output selbst bei kleinen Veränderungen stark. Alle Pakete enthalten einen Hash, um Fehler bei der Datenübertragung des Pakets zu finden.
 - **Signierung**: Alle Pakete in einer Gruppe enthalten einen Hash, um zu validieren, welcher Benutzer es gesendet hat.
 - **Verschlüsselung**: Sensible Datenfelder werden unter Verwendung einer Kombination aus Passwort und Salt verschlüsselt.
 - **Salt**: Eine Zusatzdatenmenge zu dem Verschlüsselungsschlüssel, der Megngenanalysen von verschlüsselten Daten erschwert.
@@ -26,7 +26,7 @@ Die Technologie kann auch für eine Kabelverbindungen verwendet werden.
 
 - Die Verbindung kann entweder auf `HIGH` (aktiv/Strom fliest) oder `LOW` (inaktiv/Strom fliest nicht) gesetzt werden.
 - Die Zustände können auch Binärziffern darstellen die zu Binärzahlen zusammengesätzt werden.
-- Der Zustand wird in einem Interval (delayTime (***50 Mikrosekunden***) Zeit pro runde) geändert.
+- Der Zustand wird in einem Interval (delayTime (**_50 Mikrosekunden_**) Zeit pro runde) geändert.
 
 # Paketformat
 
@@ -61,7 +61,7 @@ In den Eckigen Klammern ist ein Wert. Dieser Wert zeigt den Zustand (`HIGH`/`LOW
 `HIGH` steht für "ja" oder "1", `LOW` steht für "nein" oder 0.
 
 - Am Anfang wird die "Leitung" auf `HIGH` gesetzt, was den Start des Bytepakets kennzeichnet.
-- Am Ende wird die "Leitung" auf `LOW` gesetzt, was dafür sorgt, dass die Letung bei dem nächsten Paket am Anfang wieder auf `HIGH` gestzt werden kann (Zustandsänderung).
+- Am Ende wird die "Leitung" auf `LOW` gesetzt, was dafür sorgt, dass die Leitung bei dem nächsten Paket am Anfang wieder auf `HIGH` gestzt werden kann (Zustandsänderung).
 
 #### Einfache Darstellung: [XY] dauern ein Zeitinterval (delayTime/50Microsekunden)
 
