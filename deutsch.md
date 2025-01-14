@@ -3,7 +3,7 @@
 Dies ist ein cryptographisches verschlüsseltes dezentrales **Netzwerkprotokoll** für die Kommunikation mit 433 MHz Sendern und Empfängern, das mehrere Gruppen unterstützt.
 Die Technologie kann auch für eine Kabelverbindungen verwendet werden.
 
-# Übersicht
+## Übersicht
 
 - **Wichtige Konzepte** - Die informatischen und cryptographischen Grundprinzipien
 - **Signalzustände** - Wie werden die "Einsen und Nullen" gesendet?
@@ -13,8 +13,9 @@ Die Technologie kann auch für eine Kabelverbindungen verwendet werden.
 - **Netzwerk-Hierarchie** - Wie ist das Netzwerk aufgebaut?
 - **Signierung** - Wie kann sich jeder im Netzwerk sicher sein, dass ein Paket wirklich von einem bestimmten Benutzer gesendet wurde?
 - **Paketstruktur** - Wie sind die Pakete aufgebaut und wie funktioniert das Netzwerkprotokoll?
+- **Schlussgedanke**
 
-# Wichtige Konzepte
+## Wichtige Konzepte
 
 - **Hashing**: Ein Hash is eine Einwegfunktion, die bei dem selben Input immer den selben Output ergibt. Von dem Output kann aber kein Input errechnet werden. Außerdem verändert sich der Output selbst bei kleinen Veränderungen stark. Alle Pakete enthalten einen Hash, um Fehler bei der Datenübertragung des Pakets zu finden.
 - **Signierung**: Alle Pakete in einer Gruppe enthalten einen Hash, um zu validieren, welcher Benutzer es gesendet hat.
@@ -22,13 +23,13 @@ Die Technologie kann auch für eine Kabelverbindungen verwendet werden.
 - **Salt**: Eine Zusatzdatenmenge zu dem Verschlüsselungsschlüssel, der Megngenanalysen von verschlüsselten Daten erschwert.
 - **Binäre Zahlen**: Ein Zahlensystem das nur mit den Ziffern 1 und 0 arbeitet. In diesem Fall Strom an (`HIGH`) als 1 und Strom aus als 0 (`LOW`).
 
-# Signalzustände
+## Signalzustände
 
 - Die Verbindung kann entweder auf `HIGH` (aktiv/Strom fliest) oder `LOW` (inaktiv/Strom fliest nicht) gesetzt werden.
 - Die Zustände können auch Binärziffern darstellen die zu Binärzahlen zusammengesätzt werden.
 - Der Zustand wird in einem Interval (delayTime (**_50 Mikrosekunden_**) Zeit pro runde) geändert.
 
-# Paketformat
+## Paketformat
 
 Das Netzwerkprotokoll teilt die Daten die über die Leitung gesendet werden in Byte-Pakete, Pakete und Chunks ein. Dies sin virtuelle Einteilungen.
 
@@ -53,9 +54,9 @@ Diese werden in eckigen Klammmern angegeben.
 
 #### Byte-Pakete: Die Möglichkeit 1 Byte (8 Bits) und die isFollowing Flag (1Bit) (source code unter dieser Sektion unter "Grundlegende Datenübertragung")
 
-# Grundlegende Datenübertragung
+## Grundlegende Datenübertragung
 
-## Sender
+### Sender
 
 In den Eckigen Klammern ist ein Wert. Dieser Wert zeigt den Zustand (`HIGH`/`LOW`).
 `HIGH` steht für "ja" oder "1", `LOW` steht für "nein" oder 0.
@@ -96,7 +97,7 @@ void rawSendByteWF(uint8_t value, int pin, int delayTime, bool isFollowing)
 }
 ```
 
-## Empfänger
+### Empfänger
 
 ```cpp
 // Datentyp zur vereinfachung
@@ -137,7 +138,7 @@ RawPacket rawReadByteWF(uint8_t pin, int delayTime)
 }
 ```
 
-# Paketübertragungsregeln
+## Paketübertragungsregeln
 
 1.  **Startbedingungen**:
 
@@ -175,7 +176,7 @@ void waitForBytePacketEnd()
     - Geräte verwenden die Zeit seit der letzten Paketübertragung, um für ein zufälliges Intervall zwischen 1000 und 50000 Mikroseunden zu warten, bevor sie versuchen, die Verbindung auf `HIGH` zu ziehen. Wenn der Sender mehrmals versucht ein Paket zu senden, wird die maxiamle Zufallszeit verkürzt, dass es warscheinlicher wird, das Paket als nächstes zu senden.
     - Bleibt die Leitung bis die zufällige Wartezeit vorbei ist auf `LOW`, kann der Sender mit der Übertragung des Pakets fortfahren.
 
-# Netzwerk-Hierarchie
+## Netzwerk-Hierarchie
 
 Das **NETZWERK** ist die physische Verbindung, die mit 433 MHz RF-Modulen (oder mit einer Kabelverbindung) hergestellt wird.
 
@@ -192,7 +193,7 @@ Benutzer können folgende Aktionen durchführen:
 - Nachrichten im gesamte NETZWERK mit MAC-Adressen senden.
 - Auf Pakete antworten.
 
-## Übersicht der Hierarchie
+### Übersicht der Hierarchie
 
 ```plaintext
 NETZWERK (433Mhz / Kabelverbindung)
@@ -216,7 +217,7 @@ NETZWERK (433Mhz / Kabelverbindung)
 
 Diese Hierarchie gewährleistet eine strukturierte Organisation der Benutzer innerhalb sicherer und skalierbarer virtueller GRUPPEn, unterstützt durch ein robustes physisches NETZWERK.
 
-# Signierung
+## Signierung
 
 1. **Generierung eines zufälligen Werts**  
    Der Benutzer generiert einen zufälligen 4-Byte-Wert, bezeichnet als `SIGN_VALUE`.
@@ -245,9 +246,9 @@ Das Format lautet:
 
 ---
 
-# Pakettypen
+## Pakettypen
 
-## Autorisieren
+### Autorisieren
 
 #### **1. IS HERE**
 
@@ -299,7 +300,7 @@ Bestätigt den erfolgreichen Beitritt zur Gruppe.
 
 ---
 
-## Erhalten der Signaturen der Benutzer in der Gruppe
+### Erhalten der Signaturen der Benutzer in der Gruppe
 
 #### **6. WHO IS IN THE GROUP**
 
@@ -327,7 +328,7 @@ Weist darauf hin, wenn ein Hacker fälschlicherweise behauptet, ein Benutzer hab
 
 ---
 
-## Senden
+### Senden
 
 #### **10. SEND**
 
@@ -367,5 +368,7 @@ Wenn der hash nicht mit den gesendeten Daten übereinstimmt, wird dieses Paket g
 packet
 
 ---
+
+## Schlussgedanke
 
 Dieses Protokoll gewährleistet eine sichere und zuverlässige Kommunikation über mehrere Geräte hinweg.
