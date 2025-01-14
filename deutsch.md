@@ -30,7 +30,7 @@ Die Technologie kann auch für eine Kabelverbindungen verwendet werden.
 
 # Paketformat
 
-Das Netzwerkprotokoll teilt die Daren die über die Leitung gesendet werden in Byte-Pakete, Pakete und Chunks ein. Dies sin virtuelle Einteilungen.
+Das Netzwerkprotokoll teilt die Daten die über die Leitung gesendet werden in Byte-Pakete, Pakete und Chunks ein. Dies sin virtuelle Einteilungen.
 
 ### Pakete: Jedes Paket folgt einem strukturierten Format:
 
