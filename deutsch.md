@@ -201,6 +201,12 @@ bool waitForBytePacketToSend(uint8_t pin)
         }
     }
 }
+
+// paket senden
+void send(uint8_t pin, const RawPacket &packet) {
+  waitForBytePacketToSend(pin);
+  sendPacket(pin, packet);
+}
 ```
 
 ## Netzwerk-Hierarchie
