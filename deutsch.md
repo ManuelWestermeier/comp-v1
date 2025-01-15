@@ -179,7 +179,7 @@ void waitForBytePacketEnd()
 ### Code Beispiel
 
 ```cpp
-bool waitForBytePacketToSend()
+bool waitForBytePacketToSend(uint8_t pin)
 {
     // den Zeitpunkt, an dem (connection.sendDelay * 13) lange nichts gesendet wurde + ein zufallsintervall zwischen 0 und (500 * connection.sendDelay)
     auto maxRandomSendDelay = (500 * connection.sendDelay) - (messagesNotSend.size() * connection.sendDelay * 5);
@@ -188,12 +188,13 @@ bool waitForBytePacketToSend()
     {
         auto now = micros();
         // wenn lange genug gewartet wurde, wird das Paket gesendet, die Leitung auf "HIGH" gesetzt und die Funktion returnt true = ge­glückt.
-        // durch das Setzen auf "HIGH" wird den anderen Benutzern mitgeteilt, dass sie ihre Pakete nicht mehr senden Können. 
+        // durch das Setzen auf "HIGH" wird den anderen Benutzern mitgeteilt, dass sie ihre Pakete nicht mehr senden Können.
         if (now > timeToWait)
         {
+            digitalWrite(pin, HIGH);
             return true;
         }
-        // wenn doch etwas gesendet wird, wird wird false = nicht ge­glückt 
+        // wenn doch etwas gesendet (die Leitung auf "HIGH" gesetzt wird) wird, false = nicht ge­glückt returnt.
         else if (digitalRead(connection.inpPin) == HIGH)
         {
             return false;
