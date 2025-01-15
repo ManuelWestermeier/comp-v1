@@ -31,19 +31,19 @@ Die Technologie kann auch für eine Kabelverbindungen verwendet werden.
 
 ## Paketformat
 
-Das Netzwerkprotokoll teilt die Daten die über die Leitung gesendet werden in Byte-Pakete, Pakete und Chunks ein. Dies sin virtuelle Einteilungen.
+Das Netzwerkprotokoll teilt die Daten, die über die Leitung gesendet werden in Byte-Pakete, Pakete und Chunks ein. Dies sin virtuelle Einteilungen.
 
 ### Pakete: Jedes Paket folgt einem strukturierten Format:
 
 Pakete setzen sich aus Chunks (kleinere Einheiten des Pakets mit Namen, Wert und Länge) zusammen.
-Diese werden in eckigen Klammmern angegeben.
+Diese werden in eckigen Klammern angegeben.
 
 - `[HIGH]`: Markiert den Beginn des Pakets. Es ist immer ein 1 Bit Chunk.
 - `[FUNCTION=x|1B]`: Ein festes 1-Byte-Feld, das den Zweck des Pakets definiert.
 - Weitere Felder sind im Format `[NAME=VALUE|LENGTH]` angegeben:
   - **NAME**: Name des Chunks.
   - **VALUE**: Wert des Chunks oder dessen Standardwert oder Nichts.
-  - **LENGTH**: Feldgröße, angegeben als `xB` (Bytes) oder `xBit` (Bits). Hier können auch vorherige Chunk-Veriabeln verwändet werden.
+  - **LENGTH**: Feldgröße, angegeben als `xB` (Bytes) oder `xBit` (Bits). Hier können auch vorherige Chunk-Variablen verwendet werden.
   - Verschlüsselte Werte werden als `VALUE x (PASSWORD + SALT)` angegeben.
   - Felder können aus verketteten Chunks bestehen.
 - `[LOW]`: Markiert das Ende des Pakets. Es ist immer ein 1 Bit Chunk.
@@ -62,7 +62,7 @@ In den Eckigen Klammern ist ein Wert. Dieser Wert zeigt den Zustand (`HIGH`/`LOW
 `HIGH` steht für "ja" oder "1", `LOW` steht für "nein" oder 0.
 
 - Am Anfang wird die "Leitung" auf `HIGH` gesetzt, was den Start des Bytepakets kennzeichnet.
-- Am Ende wird die "Leitung" auf `LOW` gesetzt, was dafür sorgt, dass die Leitung bei dem nächsten Paket am Anfang wieder auf `HIGH` gestzt werden kann (Zustandsänderung).
+- Am Ende wird die "Leitung" auf `LOW` gesetzt, was dafür sorgt, dass die Leitung bei dem nächsten Paket am Anfang wieder auf `HIGH` gesetzt werden kann (Zustandsänderung).
 
 #### Einfache Darstellung: [XY] dauern ein Zeitinterval (delayTime/50Microsekunden)
 
@@ -72,7 +72,7 @@ In den Eckigen Klammern ist ein Wert. Dieser Wert zeigt den Zustand (`HIGH`/`LOW
 //WF=With isFollowingFlag
 void rawSendByteWF(uint8_t value, int pin, int delayTime, bool isFollowing)
 {
-    // begin des Pakets
+    // Beginn des Pakets
     digitalWrite(pin, HIGH);
     delayMicroseconds(delayTime); // Pause
 
