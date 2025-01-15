@@ -176,6 +176,32 @@ void waitForBytePacketEnd()
     - Geräte verwenden die Zeit seit der letzten Paketübertragung, um für ein zufälliges Intervall zwischen 1000 und 50000 Mikrosekunden zu warten, bevor sie versuchen, die Verbindung auf `HIGH` zu ziehen. Wenn der Sender mehrmals versucht ein Paket zu senden, wird die maximale Zufallszeit verkürzt, dass es wahrscheinlicher wird, das Paket als nächstes zu senden.
     - Bleibt die Leitung bis die zufällige Wartezeit vorbei ist auf `LOW`, kann der Sender mit der Übertragung des Pakets fortfahren.
 
+### Code Beispiel
+
+```cpp
+bool waitForBytePacketToSend()
+{
+    // den Zeitpunkt, an dem (connection.sendDelay * 13) lange nichts gesendet wurde + ein zufallsintervall zwischen 0 und (500 * connection.sendDelay)
+    auto maxRandomSendDelay = (500 * connection.sendDelay) - (messagesNotSend.size() * connection.sendDelay * 5);
+    auto timeToWait = micros() + (connection.sendDelay * 13) + random(maxRandomSendDelay > 0 ? maxRandomSendDelay* : 0);
+    while (true)
+    {
+        auto now = micros();
+        // wenn lange genug gewartet wurde, wird das Paket gesendet, die Leitung auf "HIGH" gesetzt und die Funktion returnt true = ge­glückt.
+        // durch das Setzen auf "HIGH" wird den anderen Benutzern mitgeteilt, dass sie ihre Pakete nicht mehr senden Können. 
+        if (now > timeToWait)
+        {
+            return true;
+        }
+        // wenn doch etwas gesendet wird, wird wird false = nicht ge­glückt 
+        else if (digitalRead(connection.inpPin) == HIGH)
+        {
+            return false;
+        }
+    }
+}
+```
+
 ## Netzwerk-Hierarchie
 
 Das **NETZWERK** ist die physische Verbindung, die mit 433 MHz RF-Modulen (oder mit einer Kabelverbindung) hergestellt wird.
