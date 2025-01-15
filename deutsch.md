@@ -1,11 +1,11 @@
 # Netzwerkprotokoll V1
 
-Dies ist ein cryptographisches verschlüsseltes dezentrales **Netzwerkprotokoll** für die Kommunikation mit 433 MHz Sendern und Empfängern, das mehrere Gruppen unterstützt.
+Dies ist ein kryptographisches verschlüsseltes dezentrales **Netzwerkprotokoll** für die Kommunikation mit 433 MHz Sendern und Empfängern, das mehrere Gruppen unterstützt.
 Die Technologie kann auch für eine Kabelverbindungen verwendet werden.
 
 ## Übersicht
 
-- **Wichtige Konzepte** - Die informatischen und cryptographischen Grundprinzipien
+- **Wichtige Konzepte** - Die informatischen und kryptographischen Grundprinzipien
 - **Signalzustände** - Wie werden die "Einsen und Nullen" gesendet?
 - **Paketformat** - Was ist eigentlich ein Paket?
 - **Grundlegende Datenübertragung** - Bytes/Zahlen senden und empfangen?
@@ -17,17 +17,17 @@ Die Technologie kann auch für eine Kabelverbindungen verwendet werden.
 
 ## Wichtige Konzepte
 
-- **Hashing**: Ein Hash is eine Einwegfunktion, die bei dem selben Input immer den selben Output ergibt. Von dem Output kann aber kein Input errechnet werden. Außerdem verändert sich der Output selbst bei kleinen Veränderungen stark. Alle Pakete enthalten einen Hash, um Fehler bei der Datenübertragung des Pakets zu finden.
+- **Hashing**: Ein Hash ist eine Einwegfunktion, die bei demselben Input immer demselben Output ergibt. Von dem Output kann aber kein Input errechnet werden. Außerdem verändert sich der Output selbst bei kleinen Veränderungen stark. Alle Pakete enthalten einen Hash, um Fehler bei der Datenübertragung des Pakets zu finden.
 - **Signierung**: Alle Pakete in einer Gruppe enthalten einen Hash, um zu validieren, welcher Benutzer es gesendet hat.
 - **Verschlüsselung**: Sensible Datenfelder werden unter Verwendung einer Kombination aus Passwort und Salt verschlüsselt.
-- **Salt**: Eine Zusatzdatenmenge zu dem Verschlüsselungsschlüssel, der Megngenanalysen von verschlüsselten Daten erschwert.
+- **Salt**: Eine Zusatzdatenmenge zu dem Verschlüsselungsschlüssel, der Mengenanalysen von verschlüsselten Daten erschwert.
 - **Binäre Zahlen**: Ein Zahlensystem das nur mit den Ziffern 1 und 0 arbeitet. In diesem Fall Strom an (`HIGH`) als 1 und Strom aus als 0 (`LOW`).
 
 ## Signalzustände
 
-- Die Verbindung kann entweder auf `HIGH` (aktiv/Strom fliest) oder `LOW` (inaktiv/Strom fliest nicht) gesetzt werden.
-- Die Zustände können auch Binärziffern darstellen die zu Binärzahlen zusammengesätzt werden.
-- Der Zustand wird in einem Interval (delayTime (**_50 Mikrosekunden_**) Zeit pro runde) geändert.
+- Die Verbindung kann entweder auf `HIGH` (aktiv/Strom fließt) oder `LOW` (inaktiv/Strom fließt nicht) gesetzt werden.
+- Die Zustände können auch Binärziffern darstellen, die zu Binärzahlen zusammengesetzt werden.
+- Der Zustand wird in einem Intervall (delayTime (**_50 Mikrosekunden_**) Zeit pro Runde) geändert.
 
 ## Paketformat
 
