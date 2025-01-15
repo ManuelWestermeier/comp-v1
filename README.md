@@ -1,231 +1,407 @@
-# Networking Protocol V1
+# Netzwerkprotokoll V1
 
-This is a multigroup encrypted **Networking Protocol** designed for communication using 433 MHz transmitters and receivers.
+Dies ist ein kryptographisches verschlüsseltes dezentrales **Netzwerkprotokoll** für die Kommunikation mit 433 MHz Sendern und Empfängern, das mehrere Gruppen unterstützt.
+Die Technologie kann auch für eine Kabelverbindungen verwendet werden.
 
-### Overview
+## Übersicht
 
-- **Network Hierarchy**
-- **Signing**
-- **Signal States**: The connection can either be pulled `HIGH` (active) or remain `LOW` (idle).
-- **Transmission Timing**:
-  - Each bit is sent every 1000 microseconds.
-  - Bits are grouped into bytes, which are further organized into packets.
-- **Packet Structure**:
-  - Each packet begins with a `[HIGH]` signal to mark its start.
-  - The packet data contains binary representations of various fields.
-  - Packets end with a `[LOW]` signal, indicating the next packet's beginning.
+- **Wichtige Konzepte** - Die informatischen und kryptographischen Grundprinzipien
+- **Signalzustände** - Wie werden die "Einsen und Nullen" gesendet?
+- **Paketformat** - Was ist eigentlich ein Paket?
+- **Grundlegende Datenübertragung** - Bytes/Zahlen senden und empfangen?
+- **Paketübertragungsregeln** - Ab wann kann ein Paket gesendet werden?
+- **Netzwerk-Hierarchie** - Wie ist das Netzwerk aufgebaut?
+- **Signierung** - Wie kann sich jeder im Netzwerk sicher sein, dass ein Paket wirklich von einem bestimmten Benutzer gesendet wurde?
+- **Paketstruktur** - Wie sind die Pakete aufgebaut und wie funktioniert das Netzwerkprotokoll?
+- **Schlussgedanke**
 
-# Network Hierarchy
+## Wichtige Konzepte
 
-The **NETWORK** is the physical connection established using 433 MHz RF modules.
+- **Hashing**: Ein Hash ist eine Einwegfunktion, die bei demselben Input immer demselben Output ergibt. Von dem Output kann aber kein Input errechnet werden. Außerdem verändert sich der Output selbst bei kleinen Veränderungen stark. Alle Pakete enthalten einen Hash, um Fehler bei der Datenübertragung des Pakets zu finden.
+- **Signierung**: Alle Pakete in einer Gruppe enthalten einen Hash, um zu validieren, welcher Benutzer es gesendet hat.
+- **Verschlüsselung**: Sensible Datenfelder werden unter Verwendung einer Kombination aus Passwort und Salt verschlüsselt.
+- **Salt**: Eine Zusatzdatenmenge zu dem Verschlüsselungsschlüssel, der Mengenanalysen von verschlüsselten Daten erschwert.
+- **Binäre Zahlen**: Ein Zahlensystem das nur mit den Ziffern 1 und 0 arbeitet. In diesem Fall Strom an (`HIGH`) als 1 und Strom aus als 0 (`LOW`).
 
-The **GROUPs** are virtual networks that implement encryption for secure communication.  
-Users within a GROUP can handle the connection process or create up to **65,536 GROUPs**.
-Each GROUP can have up to **65,536 users**.
-Each user is a member of one or more GROUPs and can connect to multiple networks simultaneously.
+## Signalzustände
 
-Users can perform the following actions:
+- Die Verbindung kann entweder auf `HIGH` (aktiv/Strom fließt) oder `LOW` (inaktiv/Strom fließt nicht) gesetzt werden.
+- Die Zustände können auch Binärziffern darstellen, die zu Binärzahlen zusammengesetzt werden.
+- Der Zustand wird in einem Intervall (delayTime (**_50 Mikrosekunden_**) Zeit pro Runde) geändert.
 
-- Send encrypted messages to other users within the GROUP.
-- Broadcast messages to all members of the GROUP.
-- Broadcast messages to the entire NETWORK.
+## Paketformat
 
-## Hierarchy Overview
+Das Netzwerkprotokoll teilt die Daten, die über die Leitung gesendet werden in Byte-Pakete, Pakete und Chunks ein. Dies sin virtuelle Einteilungen.
+
+### Pakete: Jedes Paket folgt einem strukturierten Format:
+
+Pakete setzen sich aus Chunks (kleinere Einheiten des Pakets mit Namen, Wert und Länge) zusammen.
+Diese werden in eckigen Klammern angegeben.
+
+- `[HIGH]`: Markiert den Beginn des Pakets. Es ist immer ein 1 Bit Chunk.
+- `[FUNCTION=x|1B]`: Ein festes 1-Byte-Feld, das den Zweck des Pakets definiert.
+- Weitere Felder sind im Format `[NAME=VALUE|LENGTH]` angegeben:
+  - **NAME**: Name des Chunks.
+  - **VALUE**: Wert des Chunks oder dessen Standardwert oder Nichts.
+  - **LENGTH**: Feldgröße, angegeben als `xB` (Bytes) oder `xBit` (Bits). Hier können auch vorherige Chunk-Variablen verwendet werden.
+  - Verschlüsselte Werte werden als `VALUE x (PASSWORD + SALT)` angegeben.
+  - Felder können aus verketteten Chunks bestehen.
+- `[LOW]`: Markiert das Ende des Pakets. Es ist immer ein 1 Bit Chunk.
+
+#### Beispiel:
+
+`[HIG] [FN=100|1B] [CHUNK1|2B] [LENGTH|1B] [DATA|LENGTH*1B] [LOW]`
+
+#### Byte-Pakete: Die Möglichkeit 1 Byte (8 Bits) und die isFollowing Flag (1Bit) (source code unter dieser Sektion unter "Grundlegende Datenübertragung")
+
+## Grundlegende Datenübertragung
+
+### Sender
+
+In den Eckigen Klammern ist ein Wert. Dieser Wert zeigt den Zustand (`HIGH`/`LOW`).
+`HIGH` steht für "ja" oder "1", `LOW` steht für "nein" oder 0.
+
+- Am Anfang wird die "Leitung" auf `HIGH` gesetzt, was den Start des Bytepakets kennzeichnet.
+- Am Ende wird die "Leitung" auf `LOW` gesetzt, was dafür sorgt, dass die Leitung bei dem nächsten Paket am Anfang wieder auf `HIGH` gesetzt werden kann (Zustandsänderung).
+
+#### Einfache Darstellung: [XY] dauern ein Zeitinterval (delayTime/50Microsekunden)
+
+`[HIGH] [IS_FOLLOWING] [BIT_8] [BIT_7] [BIT_6] [BIT_5] [BIT_4] [BIT_3] [BIT_2] [BIT_1] [LOW]`
+
+```cpp
+//WF=With isFollowingFlag
+void rawSendByteWF(uint8_t value, int pin, int delayTime, bool isFollowing)
+{
+    // Beginn des Pakets
+    digitalWrite(pin, HIGH);
+    delayMicroseconds(delayTime); // Pause
+
+    // das erste Bit zeigt, ob das Paket auf ein anders Paket folgt oder der Start eines neuen Pakets ist
+    digitalWrite(pin, isFollowing ? HIGH : LOW);
+    delayMicroseconds(delayTime); // Pause
+
+    // Jeder Daten-Bit eines Bytes (8 Bits) senden (LSB-first)
+    for (uint8_t i = 0; i < 8; i++)
+    {
+        // Jedes Bit extrahieren und dann senden
+        bool bit = (value & (1 << i)) != 0;
+        digitalWrite(pin, bit ? HIGH : LOW);
+
+        // Pause
+        delayMicroseconds(delayTime);
+    }
+
+    // Ende des Pakets
+    digitalWrite(pin, LOW);
+    delayMicroseconds(delayTime); // Pause
+}
+```
+
+### Empfänger
+
+```cpp
+// Datentyp zur vereinfachung
+struct RawPacket
+{
+    bool isFollowing;
+    uint8_t data;
+};
+
+//WF=With isFollowingFlag
+RawPacket rawReadByteWF(uint8_t pin, int delayTime)
+{
+    RawPacket packet;
+    packet.data = 0;
+
+    // Auf das Startsignal warten
+    while (digitalRead(pin) != HIGH)
+        ;
+
+    // 1.5 * delayTime (50 Microsekunden) warten (damit es bei der Hälfte des nächsten Bits anfängt den Wert auszulesen)
+    delayMicroseconds(delayTime * 1.5);
+
+    // isFollowingFlag auslesen
+    packet.isFollowing = (digitalRead(pin) == HIGH);
+    delayMicroseconds(delayTime);
+
+    // Jedes Bit auslesen und zu einem Byte zusammensätzen
+    for (uint8_t i = 0; i < 8; i++)
+    {
+        if (digitalRead(pin) == HIGH)
+        {
+            packet.data |= (1 << i); // LSB-first
+        }
+        delayMicroseconds(delayTime);
+    }
+
+    return packet;
+}
+```
+
+## Paketübertragungsregeln
+
+1.  **Startbedingungen**:
+
+    - Um ein Paket zu senden, stellt der Sender sicher, dass die Verbindung für eine festgelegte "maximale Sendezeit" (13 `*` delayTime) auf `LOW` bleibt.
+      Da pro Byte-Paket mindestens 1 mal der Zustand `HIGH` übertragen werden muss (am Start) und das Senden eines Byte-Paket ca. 12 `*` delayTime + 1 `*` delayTime (Puffer) dauert kann man sagen, dass wenn die Leitung 13 `*` delayTime (50 Microsekunden) lang auf `LOW` steht Nichts gesendet wurde.
+      Und der Nutzer mit dem sicheren Paketlesen anfangen kann.
+    - Wenn die Verbindung während dieses Zeitraums auf `HIGH` wechselt, muss der Sender den Versuch wiederholen.
+
+### Code Beispiel
+
+```cpp
+void waitForBytePacketEnd()
+{
+    // den Zeitpunkt, an dem (connection.sendDelay * 13) lange nichts gesendet wurde, was heißt, dass das letzte Paket zu Ende ist
+    auto timeToWait = micros() + (connection.sendDelay * 13);
+    while (true)
+    {
+        auto now = micros();
+        //wenn lange genug gewartet wurde, returnt die Funktion und der code dahinter kann reibungslos ausgeführt werden.
+        if (now > timeToWait)
+        {
+            return;
+        }
+        // wenn doch etwas gesendet wird, wird der timer zurück gesetzt
+        else if (digitalRead(connection.inpPin) == HIGH)
+        {
+            auto timeToWait = now + (connection.sendDelay * 13);
+        }
+    }
+}
+```
+
+2.  **Kollisionsvermeidung**:
+
+    - Geräte verwenden die Zeit seit der letzten Paketübertragung, um für ein zufälliges Intervall zwischen 1000 und 50000 Mikrosekunden zu warten, bevor sie versuchen, die Verbindung auf `HIGH` zu ziehen. Wenn der Sender mehrmals versucht ein Paket zu senden, wird die maximale Zufallszeit verkürzt, dass es wahrscheinlicher wird, das Paket als nächstes zu senden.
+    - Bleibt die Leitung bis die zufällige Wartezeit vorbei ist auf `LOW`, kann der Sender mit der Übertragung des Pakets fortfahren.
+
+### Code Beispiel
+
+```cpp
+bool waitForBytePacketToSend(uint8_t pin)
+{
+    // den Zeitpunkt, an dem (connection.sendDelay * 13) lange nichts gesendet wurde + ein zufallsintervall zwischen 0 und (500 * connection.sendDelay)
+    auto maxRandomSendDelay = (500 * connection.sendDelay) - (messagesNotSend.size() * connection.sendDelay * 5);
+    auto timeToWait = micros() + (connection.sendDelay * 13) + random(maxRandomSendDelay > 0 ? maxRandomSendDelay* : 0);
+    while (true)
+    {
+        auto now = micros();
+        // wenn lange genug gewartet wurde, wird das Paket gesendet, die Leitung auf "HIGH" gesetzt und die Funktion returnt true = ge­glückt.
+        // durch das Setzen auf "HIGH" wird den anderen Benutzern mitgeteilt, dass sie ihre Pakete nicht mehr senden Können.
+        if (now > timeToWait)
+        {
+            digitalWrite(pin, HIGH);
+            return true;
+        }
+        // wenn doch etwas gesendet (die Leitung auf "HIGH" gesetzt wird) wird, false = nicht ge­glückt returnt.
+        else if (digitalRead(connection.inpPin) == HIGH)
+        {
+            return false;
+        }
+    }
+}
+
+// paket senden
+void send(uint8_t pin, const RawPacket &packet) {
+  waitForBytePacketToSend(pin);
+  sendPacket(pin, packet);
+}
+```
+
+## Netzwerk-Hierarchie
+
+Das **NETZWERK** ist die physische Verbindung, die mit 433 MHz RF-Modulen (oder mit einer Kabelverbindung) hergestellt wird.
+
+Die **GRUPPEn** sind virtuelle Netzwerke, die Verschlüsselung für eine sichere Kommunikation implementieren. Es kann bis zu **65.536 GRUPPEn** geben.
+Benutzer innerhalb einer GRUPPE können den Verbindungsprozess verwalten, daten senden oder bis zu **65.536 BENUTZER** einladen.  
+Jeder Benutzer ist Mitglied einer oder mehrerer GRUPPEn und kann gleichzeitig mit mehreren Netzwerken verbunden sein.
+In Jeder der Gruppen ist jeder Benutzer gleichberechtigt.
+
+Benutzer können folgende Aktionen durchführen:
+
+- Verschlüsselte Nachrichten an andere Benutzer innerhalb der GRUPPE senden.
+- Nachrichten an alle Mitglieder der GRUPPE Broad casten.
+- Nachrichten an das gesamte NETZWERK senden.
+- Nachrichten im gesamte NETZWERK mit MAC-Adressen senden.
+- Auf Pakete antworten.
+
+### Übersicht der Hierarchie
 
 ```plaintext
-NETWORK
-  ├── GROUP 1
-  │     ├── USER 1
-  │     ├── USER 2
-  │     └── USER 3
+NETZWERK (433Mhz / Kabelverbindung)
+  ├── GRUPPE 1
+  │     ├── BENUTZER 1
+  │     ├── BENUTZER 2
+  │     └── BENUTZER 3
             ...
-  ├── GROUP 2
-  │     ├── USER 27224
-  │     └── USER 2885
+  ├── GRUPPE 2
+  │     ├── BENUTZER 27224
+  │     └── BENUTZER 2885
             ...
-  └── GROUP 3
-        ├── USER 6
-        ├── USER 7
-        ├── USER 8
-        └── USER 9
+  └── GRUPPE 3
+        ├── BENUTZER 6
+        ├── BENUTZER 7
+        ├── BENUTZER 8
+        └── BENUTZER 9
             ...
   ...
 ```
 
-This hierarchy ensures a structured organization of users within secure and scalable virtual GROUPs, supported by a robust physical NETWORK.
+Diese Hierarchie gewährleistet eine strukturierte Organisation der Benutzer innerhalb sicherer und skalierbarer virtueller GRUPPEn, unterstützt durch ein robustes physisches NETZWERK.
 
-# Signing
+## Signierung
 
-1. **Random Value Generation**  
-   The user generates a random 4-byte value, referred to as `SIGN_VALUE`.
+1. **Generierung eines zufälligen Werts**  
+   Der Benutzer generiert einen zufälligen 4-Byte-Wert, bezeichnet als `SIGN_VALUE`.
 
-2. **Hashing the Value**  
-   The user hashes `SIGN_VALUE` and extracts the last 4 bytes of the hash, referred to as `SIGN_VALUE_HASH`.
+2. **Hashen des Werts**  
+   Der Benutzer hasht den Wert `SIGN_VALUE` und extrahiert die letzten 4 Bytes des Hashs, bezeichnet als `SIGN_VALUE_HASH`.
 
-3. **Sharing the Hash**  
-   The value of `SIGN_VALUE_HASH` is shared with all members of the group.
+3. **Teilen des Hashs**  
+   Der Wert von `SIGN_VALUE_HASH` wird mit allen Mitgliedern der Gruppe geteilt.
 
-4. **Signing a Message**  
-   To sign a message, the user sends:
+4. **Signieren einer Nachricht**  
+   Um eine Nachricht zu signieren, sendet der Benutzer:
 
-   - The original random value (`SIGN_VALUE`)
-   - The next hashed random value (`NEXT_SIGN_VALUE_HASH`) to identify the next message (it have to be send in the same pocket)
+   - Den ursprünglichen zufälligen Wert (`SIGN_VALUE`)
+   - Den nächsten gehashten zufälligen Wert (`NEXT_SIGN_VALUE_HASH`), um die nächste Nachricht zu identifizieren (diese muss im gleichen Paket gesendet werden)
 
-This ensures that each message is uniquely identifiable and establishes the hash for the following message.
-The format is (` ... [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] ... `).
+Benutzer die überprüfen wollen, ob eine Nachricht von dem richtigen Benutzer gesendet wurde, können den HASH des Gesendeten Werts `SIGN_VALUE` mit dem Hash `SIGN_VALUE_HASH` abgleichen.
 
+Da eine Hashfunktion eine Einwegfunktion ist kann kein übereinstimmender Wert ausgängig von dem Hash generiert werden.
+Dies stellt sicher, dass jede Nachricht eindeutig identifizierbar ist.
 
-# Packet Transmission Rules
+Das Format lautet:
 
-1.  **Start Conditions**:
-
-    - To send a packet, the sender ensures the connection remains `LOW` for a specified _max send time_.
-    - If the connection goes `HIGH` during this period, the sender must retry.
-
-2.  **Collision Avoidance**:
-
-    - Devices use the time since the last packet's transmission to wait for a random interval between 1000 and 50000 microseconds before attempting to pull the connection `HIGH`.
-    - If the line stays `LOW`, the sender may proceed to transmit a packet.
-
-# Packet Format
-
-Each packet follows a structured format:
-
-- `[HIGH]`: Marks the start of the packet.
-- `[FUNCTION=x|1B]`: A fixed 1-byte field defining the packet's purpose.
-- Additional fields are specified in a `NAME=VALUE|LENGTH` format:
-  - **NAME**: Field name.
-  - **VALUE**: Field value or its default value.
-  - **LENGTH**: Field size, expressed as `xB` (bytes) or `xBit` (bits).
-  - Encrypted values are denoted as `VALUE x (PASSWORD + SALT)`.
-  - Fields may consist of concatenated chunks.
-
-Example:
-
-`[HIGH] [FUNCTION=x|1B] ... [LOW]`
+1. Erstes Paket: (`... [CURRENT_SIGN_HASH|4B] ...`) (Dies zeigt den Nutzern den aktuellen Hash).
+2. Folgende Pakete: (`... [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] ...`) (Kann ein Paket "unterschreiben" und bringt den Hash für das Nächste Paket mit).
 
 ---
 
-# Packet Types
+## Pakettypen
 
-## Authorize
+### Autorisieren
 
-#### **1\. IS HERE**
+#### **1. IS HERE**
 
-Used to discover network groups.
+Wird verwendet, um Gruppen zu finden.
 
-`[HIGH] [FUNCTION=1|1B] [ANSWER_ID=random()|1B] [GROUP_NAME_LENGTH=L|1B] [GROUP_NAME_STRING=...|L*1B] [HASH|1B] [LOW]`
+`[HIGH] [FUNCTION=1|1B] [PACKET_ID=random()|2B] [ANSWER_ID=random()|2B] [GROUP_NAME_LENGTH=L|1B] [GROUP_NAME_STRING=...|L*1B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [LOW]`
 
-#### **2\. HERE IS**
+#### **2. HERE IS**
 
-##### YES
+##### JA
 
-Confirms the group's existence.
+Bestätigt die Existenz der Gruppe.
 
-All users in the group can respond to this packet, but the first user in the group — determined by the shortest random delay time — will send the reply.
+Alle Benutzer in der Gruppe können auf dieses Paket antworten, aber der erste Benutzer in der Gruppe (bestimmt durch die kürzeste zufällige Verzögerungszeit) sendet die Antwort.
 
-`[HIGH] [FUNCTION=2|1B] [ANSWER_ID|1B] [GROUP_ID|2B] [CONNECT_ID|1B] [VERIFY_BYTES|2B] [SALT=random()|1B] [HASH|2B] [LOW]`
+`[HIGH] [FUNCTION=2|1B] [PACKET_ID=random()|2B] [ANSWER_ID|2B] [GROUP_ID|2B] [CONNECT_ID|2B] [VERIFY_BYTES=ranom()|4B] [SALT=random()|2B] [HASH|4B] [LOW]`
 
-##### NO
+##### NEIN
 
-No response if the group is not present (timeout: 1-2 seconds).
+Keine Antwort, wenn die Gruppe nicht vorhanden ist (Timeout: 1-2 Sekunden).
 
-#### **3\. JOIN**
+#### **3. JOIN**
 
-Request to join a group.
+Anfrage zum Beitreten einer Gruppe.
 
-`[HIGH] [FUNCTION=3|1B] [GROUP_ID|2B] [CONNECT_ID|1B] [VERIFY_BYTES x (PASSWORD + SALT)|2B] [CURRENT_SIGN_HASH|4B] [HASH|2B] [LOW]`
+`[HIGH] [FUNCTION=3|1B] [PACKET_ID=random()|2B] [GROUP_ID|2B] [CONNECT_ID|2B] [VERIFY_BYTES x (PASSWORD + SALT)|4B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [LOW]`
 
-#### **4\. ACCEPT**
+#### **4. ACCEPT**
 
-Response to a join request.
+Antwort auf eine Beitrittsanfrage.
 
-All users in the group can respond to this packet, but the first user in the group — determined by the shortest random delay time — will send the reply.
+Alle Benutzer in der Gruppe können auf dieses Paket antworten, aber der erste Benutzer in der Gruppe (bestimmt durch die kürzeste zufällige Verzögerungszeit) sendet die Antwort.
 
-##### YES
+##### JA
 
-Confirms the group's existence.
+Bestätigt die Existenz der Gruppe.
 
-`[HIGH] [FUNCTION=4|1B] [GROUP_ID|2B] [CONNECT_ID|1B] /* Encrypted data starts here */ [USER_ID|2B] [CURRENT_SALT|2B] [SALT_MODIFIER_PER_PACKET=(MODIFIER + VALUE)|2B] [HASH|2B] [LOW]`
+`[HIGH] [FUNCTION=4|1B] [PACKET_ID=random()|2B] [GROUP_ID|2B] [CONNECT_ID|2B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [CURRENT_SALT|4B] [ERROR_IDENTIFYER=random()|2B] [SALT_MODIFIER_PER_PACKET=(MODIFIER + VALUE)|2B] [HASH|4B] [LOW]`
 
-##### NO
+##### NEIN
 
-No response if the group is not present (timeout: 1-2 seconds).
+Keine Antwort, wenn die Gruppe nicht vorhanden ist (Timeout: 1-2 Sekunden).
 
-#### **5\. JOINED**
+#### **5. JOINED**
 
-Acknowledges successful group joining.
+Bestätigt den erfolgreichen Beitritt zur Gruppe.
 
-`[HIGH] [FUNCTION=5|1B] [GROUP_ID|2B] /* Encrypted data starts here */ [USER_ID|2B] [CURRENT_SALT|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|2B] [LOW]`
-
----
-
-## Get the Signs of the users in the group
-
-#### **6\. WHO IS IN THE GROUP**
-
-Ask who is in the group.
-
-`[HIGH] [FUNCTION=6|1B] [GROUP_ID|2B] /* Encrypted data starts here */ [USER_ID|2B] [CURRENT_SALT|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|2B] [LOW]`
-
-#### **7\. I AM IN THE GROUP**
-
-Say that you are in the group.
-
-`[HIGH] [FUNCTION=7|1B] [GROUP_ID|2B] /* Encrypted data starts here */ [USER_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|2B] [LOW]`
-
-#### **8\. WRONG SIGN**
-
-Indicate if a user sends the wrong sign hash.
-
-`[HIGH] [FUNCTION=8|1B] [GROUP_ID|2B] /* Encrypted data starts here */ [USER_ID|2B] [USER_WITH_WRONG_SIGN_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|2B] [LOW]`
-
-#### **9\. WRONG SIGN PACKET IS CORRUPTED**
-
-Indicate when a hacker falsely claims a user has a wrong sign, but the sign is valid.
-
-`[HIGH] [FUNCTION=9|1B] [GROUP_ID|2B] /* Encrypted data starts here */ [USER_ID|2B] [HACKER_USER_WITH_WRONG_SIGN_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|2B] [LOW]`
+`[HIGH] [FUNCTION=5|1B] [PACKET_ID=random()|2B] [GROUP_ID|2B] /* Verschlüsselte Daten beginnen hier */ [ERROR_IDENTIFYER|2B] [USER_ID|2B] [CURRENT_SALT|4B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [LOW]`
 
 ---
 
-## Send
+### Erhalten der Signaturen der Benutzer in der Gruppe
 
-#### **10\. SEND**
+#### **6. WHO IS IN THE GROUP**
 
-Send data to a specific user.
+Fragt, wer in der Gruppe ist.
 
-`[HIGH] [FUNCTION=10|1B] [GROUP_ID|2B] [DATA_LENGTH=L|1B] /* Encrypted data starts here */ [USER_ID|2B] [USER_DESTINATION|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [DATA|L*1B] [LOW]`
+`[HIGH] [FUNCTION=6|1B] [PACKET_ID=random()|2B] [GROUP_ID|2B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [CURRENT_SALT|4B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [LOW]`
 
-#### **11\. SEND TO MULTIPLE USERS**
+#### **7. I AM IN THE GROUP**
 
-Broadcast data to multiple specific users.
+Meldet, dass man in der Gruppe ist.
 
-`[HIGH] [FUNCTION=11|1B] [GROUP_ID|2B] [USERS_LENGTH=UL|2B] [DATA_LENGTH=DL|1B] /* Encrypted data starts here */ [USER_ID|2B] [USER_DESTINATIONS|UL*2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [DATA|DL*1B] [LOW]`
+`[HIGH] [FUNCTION=7|1B] [PACKET_ID=random()|2B] [GROUP_ID|2B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [LOW]`
 
-#### **12\. BROADCAST INNER GROUP**
+#### **8. WRONG SIGN**
 
-Broadcast data within a group.
+Weist darauf hin, wenn ein Benutzer den falschen Signatur-Hash sendet.
 
-`[HIGH] [FUNCTION=12|1B] [GROUP_ID|2B] [DATA_LENGTH=L|1B] /* Encrypted data starts here */ [USER_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [DATA|L*1B] [LOW]`
+`[HIGH] [FUNCTION=8|1B] [PACKET_ID=random()|2B] [GROUP_ID|2B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [USER_WITH_WRONG_SIGN_ID|2B] [WRONG_SIGN_PACKET_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [LOW]`
 
-#### **20\. BROADCAST INNER NETWORK**
+#### **9. WRONG SIGN PACKET IS CORRUPTED**
 
-Broadcast data to all devices in the network.
+Weist darauf hin, wenn ein Hacker fälschlicherweise behauptet, ein Benutzer habe eine falsche Signatur, die jedoch gültig ist. Diese Kann nur durch einen anderen Benutzer gesendet werden (nicht HACKER).
 
-`[HIGH] [FUNCTION=20|1B] [DATA_LENGTH=L|1B] [HASH|4B] [DATA|L*1B] [LOW]`
-
-#### **21\. SEND TO MAC INNER NETWORK**
-
-Send a message to an user in the network by the mac-adress.
-
-`[HIGH] [FUNCTION=21|1B] [MAC_ADRESS|4B] [DATA_LENGTH=L|1B] [HASH|4B] [DATA|L*1B] [LOW]`
+`[HIGH] [FUNCTION=9|1B] [PACKET_ID=random()|2B] [GROUP_ID|2B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [HACKER_USER_WITH_WRONG_SIGN_ID|2B] [WRONG_SIGN_PACKET_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [LOW]`
 
 ---
 
-### Key Concepts
+### Senden
 
-- **Hashing**: All packets contain a hash to validate their integrity.
-- **Signing**: All packets in a group contain a hash to validate which user send it.
-- **Encryption**: Sensitive data fields are encrypted using a combination of a password and a salt.
+#### **10. SEND**
 
-This protocol ensures secure and reliable communication across multiple devices.
+Sendet Daten an einen bestimmten Benutzer.
+
+`[HIGH] [FUNCTION=10|1B] [PACKET_ID=random()|2B] [GROUP_ID|2B] [DATA_LENGTH=L|1B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [USER_DESTINATION|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|6B] [DATA|L*1B] [LOW]`
+
+#### **11. SEND TO MULTIPLE USERS**
+
+Sendet Daten an mehrere spezifische Benutzer.
+
+`[HIGH] [FUNCTION=11|1B] [PACKET_ID=random()|2B] [GROUP_ID|2B] [USERS_LENGTH=UL|2B] [DATA_LENGTH=DL|1B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [USER_DESTINATIONS|UL*2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|6B] [DATA|DL*1B] [LOW]`
+
+#### **12. BROADCAST INNER GROUP**
+
+Sendet Daten innerhalb einer Gruppe an alle Mitglieder.
+
+`[HIGH] [FUNCTION=12|1B] [PACKET_ID=random()|2B] [GROUP_ID|2B] [DATA_LENGTH=L|1B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|6B] [DATA|L*1B] [LOW]`
+
+#### **20. BROADCAST INNER NETWORK**
+
+Sendet Daten an alle Geräte im Netzwerk.
+
+`[HIGH] [FUNCTION=20|1B] [PACKET_ID=random()|2B] [DATA_LENGTH=L|1B] [HASH|6B] [DATA|L*1B] [LOW]`
+
+#### **21. SEND TO MAC INNER NETWORK**
+
+Sendet eine Nachricht an einen Benutzer im Netzwerk über die MAC-Adresse.
+
+`[HIGH] [FUNCTION=21|1B] [PACKET_ID=random()|2B] [MAC_ADRESS|4B] [DATA_LENGTH=L|1B] [HASH|6B] [DATA|L*1B] [LOW]`
+
+#### **30. PACKET DATA ERROR**
+
+Wenn der hash nicht mit den gesendeten Daten übereinstimmt, wird dieses Paket gesendet.
+
+`[HIGH] [FUNCTION=30|1B] [PACKET_ID=random()|2B] [ERROR_PACKET_ID=random()|2B] [HASH|1B] [LOW]`
+packet
+
+---
+
+## Schlussgedanke
+
+Dieses Protokoll gewährleistet eine sichere und zuverlässige Kommunikation über mehrere Geräte hinweg.
