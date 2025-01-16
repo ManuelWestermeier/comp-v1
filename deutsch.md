@@ -1,11 +1,28 @@
-# Netzwerkprotokoll V1
+# MJ-Dezentrales Netzwerk- und Kommunikationsprotokoll
+
+## Fachliche Kurzfassung
 
 Dies ist ein kryptographisches verschlüsseltes dezentrales **Netzwerkprotokoll** für die Kommunikation mit 433 MHz Sendern und Empfängern, das mehrere Gruppen unterstützt.
 Die Technologie kann auch für eine Kabelverbindungen verwendet werden.
 
+## Motivation und Fragestellung
+
+Die steigende Nachfrage nach sicheren Kommunikationsprotokollen für drahtlose oder kabelgebundene Netzwerke erfordert effiziente und skalierbare Lösungen. Wie kann ein robustes, kryptografisch sicheres Protokoll für den Einsatz in einfachen, aber vielseitigen Hardwareplattformen realisiert werden? Diese Arbeit bietet eine Antwort durch die Entwicklung eines Protokolls, das sowohl Datenintegrität als auch Vertraulichkeit sicherstellt.
+
+## Vorgehensweise, Materialien und Methoden
+
+- Paketstruktur:
+  - Zustandswechsel (HIGH/LOW) zur Übertragung von Binärzahlen/-daten.
+  - Kollisionserkennung und -vermeidung, basierend auf zufälligen Wartezeiten.
+- Hardware:
+  - 433 MHz RF-Module als Funkplattform / Kabel zur verbindung (ein Kable benötigt + Erdung).
+  - Mikrocontroller (ESP-32) für Signalverarbeitung.
+- Software:
+  - Implementierung der Protokollregeln in C++ (PlatformIO).
+
 ## Übersicht
 
-- **Wichtige Konzepte** - Die informatischen und kryptographischen Grundprinzipien
+- **Hintergrund und theoretische Grundlagen** - Die informatischen und kryptographischen Grundprinzipien
 - **Signalzustände** - Wie werden die "Einsen und Nullen" gesendet?
 - **Paketformat** - Was ist eigentlich ein Paket?
 - **Grundlegende Datenübertragung** - Bytes/Zahlen senden und empfangen?
@@ -15,10 +32,11 @@ Die Technologie kann auch für eine Kabelverbindungen verwendet werden.
 - **Paketstruktur** - Wie sind die Pakete aufgebaut und wie funktioniert das Netzwerkprotokoll?
 - **Schlussgedanke**
 
-## Wichtige Konzepte
+## Hintergrund und theoretische Grundlagen
 
+- **Netzwerk-Hierarchie**: Einteilung in virtuelle Gruppen zur besseren Skalierbarkeit und Sicherheit.
 - **Hashing**: Ein Hash ist eine Einwegfunktion, die bei demselben Input immer demselben Output ergibt. Von dem Output kann aber kein Input errechnet werden. Außerdem verändert sich der Output selbst bei kleinen Veränderungen stark. Alle Pakete enthalten einen Hash, um Fehler bei der Datenübertragung des Pakets zu finden.
-- **Signierung**: Alle Pakete in einer Gruppe enthalten einen Hash, um zu validieren, welcher Benutzer es gesendet hat.
+- **Signierung**: Alle Pakete in einer Gruppe enthalten einen Hash, um zu erkennen, welcher Benutzer es gesendet hat.
 - **Verschlüsselung**: Sensible Datenfelder werden unter Verwendung einer Kombination aus Passwort und Salt verschlüsselt.
 - **Salt**: Eine Zusatzdatenmenge zu dem Verschlüsselungsschlüssel, der Mengenanalysen von verschlüsselten Daten erschwert.
 - **Binäre Zahlen**: Ein Zahlensystem das nur mit den Ziffern 1 und 0 arbeitet. In diesem Fall Strom an (`HIGH`) als 1 und Strom aus als 0 (`LOW`).
@@ -402,6 +420,68 @@ packet
 
 ---
 
-## Schlussgedanke
+## Ergebnisse
 
-Dieses Protokoll gewährleistet eine sichere und zuverlässige Kommunikation über mehrere Geräte hinweg.
+1.  Implementierung des Unterprotokolls
+
+    Das Unterprotokoll zur Übertragung von roh-binären Daten konnte erfolgreich umgesetzt werden. Dabei wurden die Zustände HIGH und LOW zur Darstellung der Binärwerte 1 und 0 verwendet. Die Übertragung zeigte in ersten Tests eine stabile Kommunikation zwischen Sender und Empfänger.
+
+2.  Hashing, Verschlüsselung und Signaturprüfung
+    Die theoretischen Grundlagen zur Sicherstellung der Integrität und Authentizität von Nachrichten durch Hashing und Signaturprüfung wurden niedergeschreiben.
+
+3.  Übertragungsrate und Fehlererkennung
+    Erste Tests der Datenübertragung ergaben eine zuverlässige Erkennung von Signalstörungen, insbesondere bei verrauschtem Eingangssignal. Hierzu trugen sowohl die minimalen Zustandswechsel als auch die Verwendung eines Protokollrahmens für Fehlerkorrektur bei.
+
+4.  Dezentralisierte Gruppenzuweisung
+    Die Datenstruktur der Gruppenkommunikation zeigte sich als skalierbar für mehrere Gruppen. Die theoretische Grenze von bis zu 65.536 Gruppen konnte im Code erfolgreich abgebildet werden. Dabei erlaubt die Verwendung von Hash-basierten Mechanismen eine sichere Zuweisung von Nachrichten an die jeweilige Gruppe.
+
+## Ergebnisse Diskussion
+
+Die bisherigen Ergebnisse zeigen vielversprechende Ansätze zur Realisierung eines zuverlässigen, verschlüsselten und dezentralisierten Kommunikationssystems auf Basis einfacher Zustandsübertragung.
+
+1. Erfolgreiche Aspekte
+
+- **Skalierbarkeit**: Die Gruppe-Zuordnung kann für verschiedene Anwendungen flexibel genutzt werden.
+- **Grundstruktur**: Das Unterprotokoll bewies sich als stabil und erweiterbar, was eine gute Basis für das Hauptprotokoll schafft.
+- **Einfache** Signalübertragung: Die auf zwei Zuständen basierende Codierung erwies sich als robust, selbst bei Signalrauschen.
+
+2. Verbesserungspotenziale
+
+- **Hauptprotokoll**: Die Implementierung der definierten Pakettypen ist essenziell, um alle Vorteile des Protokolls, wie etwa die verschlüsselte Kommunikation und Fehlerkorrektur, zu realisieren.
+- **Testumgebung**: Eine ausführlichere Testumgebung mit größerer Hardware-Variation wäre wünschenswert, um die Robustheit unter unterschiedlichen Bedingungen zu testen.
+- **Verschlüsselungsintegration**: Zwar wurde ein theoretisches Modell für die Verschlüsselung entwickelt, die praktische Umsetzung steht jedoch noch aus.
+
+3. Praktische Anwendungen
+   Potenzielle Anwendungen des Systems reichen von drahtlosen Sensor-Netzwerken bis hin zur verschlüsselten Kommunikation für smarte Geräte. Die Möglichkeit, das Protokoll sowohl kabelgebunden als auch drahtlos zu betreiben, erhöht seine Anwendungsbreite.
+   Theoretisch kann das Protokoll auch bei allen anderen Objekten, die zwei Zustände annehmen können eingesetzt werden (z. B. Taschenlampen, Laser).
+
+## Ausblick
+
+Das entwickelte Protokoll bietet eine vielversprechende Grundlage für sichere und skalierbare Kommunikation sowohl über drahtlose als auch kabelgebundene Netzwerke. Die Kombination von Hashing, Verschlüsselung und Signaturprüfung sorgt für eine hohe Integrität und Vertraulichkeit der übertragenen Daten.
+
+### Zukünftige Arbeiten
+
+1. **Implementierung des Hauptprotokolls**:
+   Der nächste Meilenstein ist die vollständige Umsetzung der definierten Pakettypen. Dadurch wird das System in der Lage sein, Nachrichten und Metadaten standardisiert zu übermitteln.
+
+2. **Erweiterung auf zusätzliche Medien**:
+   Neben drahtgebundenen und Funkübertragungen könnte das Protokoll auf andere Übertragungsmedien wie Lichtsignale (z. B. LEDs oder Laser) ausgeweitet werden, um den Einsatzbereich zu erweitern.
+
+3. **Optimierung der Latenzzeiten**:
+   Adaptive Mechanismen, wie die dynamische Anpassung der Signaldauer basierend auf der Übertragungsqualität, könnten die Effizienz verbessern und die Latenzzeiten verringern.
+
+4. **Integration in IoT-Plattformen**:
+   Die Integration des Protokolls in IoT-Ökosysteme würde praktische Anwendungen ermöglichen, wie z. B. in der Heimautomation oder bei vernetzten Sensornetzwerken.
+
+5. **Erweiterung der Pakettypen**:
+   Das Protokoll könnte durch neue Pakettypen erweitert werden, um zusätzliche Funktionen wie Priorisierung von Nachrichten oder erweiterte Steuerbefehle zu ermöglichen.
+
+6. **Post-Quantenverschlüsselung**:
+   Mit Blick auf die Sicherheit in der Zukunft sollte das Protokoll auf post-quantenresistente Verschlüsselungsmethoden vorbereitet werden, um die Vertraulichkeit auch gegen zukünftige Bedrohungen durch Quantencomputer zu gewährleisten.
+
+7. **Entwicklung eines Messenger-Dienstes**:
+   Ein Protokoll-spezifischer Messenger-Dienst könnte eine benutzerfreundliche Möglichkeit darstellen, das Potenzial der Technologie zu demonstrieren und praktische Anwendungsszenarien zu erforschen.
+
+## Fazit
+
+Mit der erfolgreichen Umsetzung des Unterprotokolls ist ein wesentlicher erster Schritt getan. Die nächsten Schritte eröffnen nicht nur neue technische Möglichkeiten, sondern auch den Weg zu vielfältigen Anwendungen in der realen Welt.
