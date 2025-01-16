@@ -495,4 +495,5 @@ Mit der erfolgreichen Umsetzung des Unterprotokolls ist ein wesentlicher erster 
 
 ## Umgang mit KI
 
-Die KI ChatGPT wurde verwendet. Sie wurde ausschließlich genutzt, um geschriebene Texte zu verbessern und Rechtschreibfehler zu korrigieren.
+Die Nutzung der KI ChatGPT ist mit einer Autokorrektur vergleichbar.
+Sie wurde ausschließlich dazu eingesetzt, geschriebene Texte zu verbessern und Rechtschreibfehler zu korrigieren.
