@@ -485,3 +485,10 @@ Das entwickelte Protokoll bietet eine vielversprechende Grundlage für sichere u
 ## Fazit
 
 Mit der erfolgreichen Umsetzung des Unterprotokolls ist ein wesentlicher erster Schritt getan. Die nächsten Schritte eröffnen nicht nur neue technische Möglichkeiten, sondern auch den Weg zu vielfältigen Anwendungen in der realen Welt.
+
+# Quellen- und Literaturverzeichnis
+
+1. https://docs.espressif.com/projects/arduino-esp32/en/latest/api/gpio.html
+2. https://de.wikipedia.org/wiki/Hashfunktion
+3. https://en.wikipedia.org/wiki/Encryption
+4. https://de.wikipedia.org/wiki/Signatur
