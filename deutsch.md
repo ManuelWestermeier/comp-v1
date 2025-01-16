@@ -492,3 +492,7 @@ Mit der erfolgreichen Umsetzung des Unterprotokolls ist ein wesentlicher erster 
 2. https://de.wikipedia.org/wiki/Hashfunktion
 3. https://en.wikipedia.org/wiki/Encryption
 4. https://de.wikipedia.org/wiki/Signatur
+
+## Umgang mit KI
+
+Die KI ChatGPT wurde verwendet. Sie wurde ausschließlich genutzt, um geschriebene Texte zu verbessern und Rechtschreibfehler zu korrigieren.
