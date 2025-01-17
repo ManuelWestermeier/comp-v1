@@ -1,5 +1,7 @@
 # MJ-Dezentrales Netzwerk- und Kommunikationsprotokoll
 
+# Einleitung
+
 ## Fachliche Kurzfassung
 
 Dies ist ein kryptographisches verschlüsseltes dezentrales **Netzwerkprotokoll** für die Kommunikation mit 433 MHz Sendern und Empfängern, das mehrere Gruppen unterstützt.
@@ -19,6 +21,8 @@ Die steigende Nachfrage nach sicheren Kommunikationsprotokollen für drahtlose o
   - Mikrocontroller (ESP-32) für Signalverarbeitung.
 - Software:
   - Implementierung der Protokollregeln in C++ (PlatformIO).
+
+# Hauptteil
 
 ## Übersicht
 
@@ -419,6 +423,8 @@ Wenn der hash nicht mit den gesendeten Daten übereinstimmt, wird dieses Paket g
 packet
 
 ---
+
+# Schluss
 
 ## Ergebnisse
 
