@@ -11,25 +11,26 @@ Die steigende Nachfrage nach sicheren Kommunikationsprotokollen für drahtlose o
 
 ## Inhalsverzeichnis
 
-- **1.0 Einleitung**  
-    - **1.1 Fachliche Kurzfassung**
-    - **1.2 Motivation und Fragestellung** - Wie sind wir auf das Thema gekommen?
-    - **1.3 Hintergrund und theoretische Grundlagen** - Die informatischen und kryptographischen Grundprinzipien
+- **1.0 Einleitung**
+  - **1.1 Fachliche Kurzfassung**
+  - **1.2 Motivation und Fragestellung** - Wie sind wir auf das Thema gekommen?
 - **2.0 Hauptteil**
-    - **2.1 Signalzustände** - Wie werden die "Einsen und Nullen" gesendet?
-    - **2.2 Paketformat** - Was ist eigentlich ein Paket?
-    - **2.3 Grundlegende Datenübertragung** - Bytes/Zahlen senden und empfangen?
-    - **2.4 Paketübertragungsregeln** - Ab wann kann ein Paket gesendet werden?
-    - **2.5 Netzwerk-Hierarchie** - Wie ist das Netzwerk aufgebaut?
-    - **2.6 Signierung** - Wie kann sich jeder im Netzwerk sicher sein, dass ein Paket wirklich von einem bestimmten Benutzer gesendet wurde?
-    - **2.7 Paketstruktur** - Wie sind die Pakete aufgebaut und wie funktioniert das Netzwerkprotokoll?
+  - **1.1 Vorgehensweise, Materialien und Methoden**
+  - **1.2 Hintergrund und theoretische Grundlagen** - Die informatischen und kryptographischen Grundprinzipien
+  - **2.3 Signalzustände** - Wie werden die "Einsen und Nullen" gesendet?
+  - **2.4 Paketformat** - Was ist eigentlich ein Paket?
+  - **2.5 Grundlegende Datenübertragung** - Bytes/Zahlen senden und empfangen?
+  - **2.6 Paketübertragungsregeln** - Ab wann kann ein Paket gesendet werden?
+  - **2.7 Netzwerk-Hierarchie** - Wie ist das Netzwerk aufgebaut?
+  - **2.8 Signierung** - Wie kann sich jeder im Netzwerk sicher sein, dass ein Paket wirklich von einem bestimmten Benutzer gesendet wurde?
+  - **2.9 Paketstruktur** - Wie sind die Pakete aufgebaut und wie funktioniert das Netzwerkprotokoll?
 - **3.0 Schluss und Ergebnisse**
-    - **3.1 Ergebnisse**
-    - **3.2 Ergebniss Diskussion**
-    - **3.3 Ausblick**
-    - **3.4 Fazit**
-    - **3.5 Quellen- und Literaturverzeichnis**
-    - **3.6 Umgang mit KI**
+  - **3.1 Ergebnisse**
+  - **3.2 Ergebniss Diskussion**
+  - **3.3 Ausblick**
+  - **3.4 Fazit**
+  - **3.5 Quellen- und Literaturverzeichnis**
+  - **3.6 Umgang mit KI**
 
 ## Vorgehensweise, Materialien und Methoden
 
@@ -442,7 +443,7 @@ packet
     Erste Tests der Datenübertragung ergaben eine zuverlässige Erkennung von Signalstörungen, insbesondere bei verrauschtem Eingangssignal. Hierzu trugen sowohl die minimalen Zustandswechsel als auch die Verwendung eines Protokollrahmens für Fehlerkorrektur bei.
 
 4.  Dezentralisierte Gruppenzuweisung
-    Die Datenstruktur der Gruppenkommunikation zeigte sich als skalierbar für mehrere Gruppen. Die theoretische Grenze von bis zu 65.536 Gruppen konnte im Code erfolgreich abgebildet werden. 
+    Die Datenstruktur der Gruppenkommunikation zeigte sich als skalierbar für mehrere Gruppen. Die theoretische Grenze von bis zu 65.536 Gruppen konnte im Code erfolgreich abgebildet werden.
 
 ## Ergebniss Diskussion
 
