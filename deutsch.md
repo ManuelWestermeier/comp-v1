@@ -1,15 +1,35 @@
 # MJ-Dezentrales Netzwerk- und Kommunikationsprotokoll
 
-# Einleitung
-
-## Fachliche Kurzfassung
+## 1.1 Fachliche Kurzfassung
 
 Dies ist ein kryptographisches verschlüsseltes dezentrales **Netzwerkprotokoll** für die Kommunikation mit 433 MHz Sendern und Empfängern, das mehrere Gruppen unterstützt.
 Die Technologie kann auch für eine Kabelverbindungen verwendet werden.
 
-## Motivation und Fragestellung
+## 1.2 Motivation und Fragestellung
 
 Die steigende Nachfrage nach sicheren Kommunikationsprotokollen für drahtlose oder kabelgebundene Netzwerke erfordert effiziente und skalierbare Lösungen. Wie kann ein robustes, kryptografisch sicheres Protokoll für den Einsatz in einfachen, aber vielseitigen Hardwareplattformen realisiert werden? Diese Arbeit bietet eine Antwort durch die Entwicklung eines Protokolls, das sowohl Datenintegrität als auch Vertraulichkeit sicherstellt.
+
+## Inhalsverzeichnis
+
+- **1.0 Einleitung**  
+    - **1.1 Fachliche Kurzfassung**
+    - **1.2 Motivation und Fragestellung** - Wie sind wir auf das Thema gekommen?
+    - **1.3 Hintergrund und theoretische Grundlagen** - Die informatischen und kryptographischen Grundprinzipien
+- **2.0 Hauptteil**
+    - **2.1 Signalzustände** - Wie werden die "Einsen und Nullen" gesendet?
+    - **2.2 Paketformat** - Was ist eigentlich ein Paket?
+    - **2.3 Grundlegende Datenübertragung** - Bytes/Zahlen senden und empfangen?
+    - **2.4 Paketübertragungsregeln** - Ab wann kann ein Paket gesendet werden?
+    - **2.5 Netzwerk-Hierarchie** - Wie ist das Netzwerk aufgebaut?
+    - **2.6 Signierung** - Wie kann sich jeder im Netzwerk sicher sein, dass ein Paket wirklich von einem bestimmten Benutzer gesendet wurde?
+    - **2.7 Paketstruktur** - Wie sind die Pakete aufgebaut und wie funktioniert das Netzwerkprotokoll?
+- **3.0 Schluss und Ergebnisse**
+    - **3.1 Ergebnisse**
+    - **3.2 Ergebniss Diskussion**
+    - **3.3 Ausblick**
+    - **3.4 Fazit**
+    - **3.5 Quellen- und Literaturverzeichnis**
+    - **3.6 Umgang mit KI**
 
 ## Vorgehensweise, Materialien und Methoden
 
@@ -22,20 +42,6 @@ Die steigende Nachfrage nach sicheren Kommunikationsprotokollen für drahtlose o
 - Software:
   - Implementierung der Protokollregeln in C++ (PlatformIO).
 
-# Hauptteil
-
-## Übersicht
-
-- **Hintergrund und theoretische Grundlagen** - Die informatischen und kryptographischen Grundprinzipien
-- **Signalzustände** - Wie werden die "Einsen und Nullen" gesendet?
-- **Paketformat** - Was ist eigentlich ein Paket?
-- **Grundlegende Datenübertragung** - Bytes/Zahlen senden und empfangen?
-- **Paketübertragungsregeln** - Ab wann kann ein Paket gesendet werden?
-- **Netzwerk-Hierarchie** - Wie ist das Netzwerk aufgebaut?
-- **Signierung** - Wie kann sich jeder im Netzwerk sicher sein, dass ein Paket wirklich von einem bestimmten Benutzer gesendet wurde?
-- **Paketstruktur** - Wie sind die Pakete aufgebaut und wie funktioniert das Netzwerkprotokoll?
-- **Schlussgedanke**
-
 ## Hintergrund und theoretische Grundlagen
 
 - **Netzwerk-Hierarchie**: Einteilung in virtuelle Gruppen zur besseren Skalierbarkeit und Sicherheit.
@@ -45,13 +51,13 @@ Die steigende Nachfrage nach sicheren Kommunikationsprotokollen für drahtlose o
 - **Salt**: Eine Zusatzdatenmenge zu dem Verschlüsselungsschlüssel, der Mengenanalysen von verschlüsselten Daten erschwert.
 - **Binäre Zahlen**: Ein Zahlensystem das nur mit den Ziffern 1 und 0 arbeitet. In diesem Fall Strom an (`HIGH`) als 1 und Strom aus als 0 (`LOW`).
 
-## Signalzustände
+## 2.1 Signalzustände
 
 - Die Verbindung kann entweder auf `HIGH` (aktiv/Strom fließt) oder `LOW` (inaktiv/Strom fließt nicht) gesetzt werden.
 - Die Zustände können auch Binärziffern darstellen, die zu Binärzahlen zusammengesetzt werden.
 - Der Zustand wird in einem Intervall (delayTime (**_50 Mikrosekunden_**) Zeit pro Runde) geändert.
 
-## Paketformat
+## 2.2 Paketformat
 
 Das Netzwerkprotokoll teilt die Daten, die über die Leitung gesendet werden in Byte-Pakete, Pakete und Chunks ein. Dies sin virtuelle Einteilungen.
 
@@ -424,24 +430,21 @@ packet
 
 ---
 
-# Schluss
-
 ## Ergebnisse
 
 1.  Implementierung des Unterprotokolls
-
     Das Unterprotokoll zur Übertragung von roh-binären Daten konnte erfolgreich umgesetzt werden. Dabei wurden die Zustände HIGH und LOW zur Darstellung der Binärwerte 1 und 0 verwendet. Die Übertragung zeigte in ersten Tests eine stabile Kommunikation zwischen Sender und Empfänger.
 
 2.  Hashing, Verschlüsselung und Signaturprüfung
-    Die theoretischen Grundlagen zur Sicherstellung der Integrität und Authentizität von Nachrichten durch Hashing und Signaturprüfung wurden niedergeschreiben.
+    Die theoretischen Grundlagen zur Sicherstellung der Integrität und Authentizität von Nachrichten durch Hash-Signaturprüfung wurden niedergeschreiben.
 
 3.  Übertragungsrate und Fehlererkennung
     Erste Tests der Datenübertragung ergaben eine zuverlässige Erkennung von Signalstörungen, insbesondere bei verrauschtem Eingangssignal. Hierzu trugen sowohl die minimalen Zustandswechsel als auch die Verwendung eines Protokollrahmens für Fehlerkorrektur bei.
 
 4.  Dezentralisierte Gruppenzuweisung
-    Die Datenstruktur der Gruppenkommunikation zeigte sich als skalierbar für mehrere Gruppen. Die theoretische Grenze von bis zu 65.536 Gruppen konnte im Code erfolgreich abgebildet werden. Dabei erlaubt die Verwendung von Hash-basierten Mechanismen eine sichere Zuweisung von Nachrichten an die jeweilige Gruppe.
+    Die Datenstruktur der Gruppenkommunikation zeigte sich als skalierbar für mehrere Gruppen. Die theoretische Grenze von bis zu 65.536 Gruppen konnte im Code erfolgreich abgebildet werden. 
 
-## Ergebnisse Diskussion
+## Ergebniss Diskussion
 
 Die bisherigen Ergebnisse zeigen vielversprechende Ansätze zur Realisierung eines zuverlässigen, verschlüsselten und dezentralisierten Kommunikationssystems auf Basis einfacher Zustandsübertragung.
 
@@ -449,7 +452,7 @@ Die bisherigen Ergebnisse zeigen vielversprechende Ansätze zur Realisierung ein
 
 - **Skalierbarkeit**: Die Gruppe-Zuordnung kann für verschiedene Anwendungen flexibel genutzt werden.
 - **Grundstruktur**: Das Unterprotokoll bewies sich als stabil und erweiterbar, was eine gute Basis für das Hauptprotokoll schafft.
-- **Einfache** Signalübertragung: Die auf zwei Zuständen basierende Codierung erwies sich als robust, selbst bei Signalrauschen.
+- **Einfache Signalübertragung**: Die auf zwei Zuständen basierende Codierung erwies sich als robust, selbst bei Signalrauschen.
 
 2. Verbesserungspotenziale
 
