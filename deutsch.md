@@ -474,7 +474,6 @@ Die bisherigen Ergebnisse zeigen vielversprechende Ansätze zur Realisierung ein
 
 - **Hauptprotokoll**: Die Implementierung der definierten Pakettypen ist essenziell, um alle Vorteile des Protokolls, wie etwa die verschlüsselte Kommunikation und Fehlerkorrektur, zu realisieren.
 - **Testumgebung**: Eine ausführlichere Testumgebung mit größerer Hardware-Variation wäre wünschenswert, um die Robustheit unter unterschiedlichen Bedingungen zu testen.
-- **Verschlüsselungsintegration**: Zwar wurde ein theoretisches Modell für die Verschlüsselung entwickelt, die praktische Umsetzung steht jedoch noch aus.
 
 3. Praktische Anwendungen
    Potenzielle Anwendungen des Systems reichen von drahtlosen Sensor-Netzwerken bis hin zur verschlüsselten Kommunikation für smarte Geräte. Die Möglichkeit, das Protokoll sowohl kabelgebunden als auch drahtlos zu betreiben, erhöht seine Anwendungsbreite.
@@ -502,7 +501,7 @@ Das entwickelte Protokoll bietet eine vielversprechende Grundlage für sichere u
    Das Protokoll könnte durch neue Pakettypen erweitert werden, um zusätzliche Funktionen wie Priorisierung von Nachrichten oder erweiterte Steuerbefehle zu ermöglichen.
 
 6. **Post-Quantenverschlüsselung**:
-   Mit Blick auf die Sicherheit in der Zukunft sollte das Protokoll auf post-quantenresistente Verschlüsselungsmethoden vorbereitet werden, um die Vertraulichkeit auch gegen zukünftige Bedrohungen durch Quantencomputer zu gewährleisten.
+   Aktuell basiert das Protokoll auf post-quantenresistente Verschlüsselungsmethoden. Jedoch ist das Netzwerk aktuell noch auf symmetrischen Systemen basiert, dies bedeutet, dass Qantencomputer die Daten nicht entschlüsseln können, jedoch alle Schlüssel manuell ausgetauscht werden müssen. Dieses Probelm muss noch gelöst werden.
 
 7. **Entwicklung eines Messenger-Dienstes**:
    Ein Protokoll-spezifischer Messenger-Dienst könnte eine benutzerfreundliche Möglichkeit darstellen, das Potenzial der Technologie zu demonstrieren und praktische Anwendungsszenarien zu erforschen.
