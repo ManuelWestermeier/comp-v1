@@ -1,9 +1,10 @@
-# MJ-Dezentrales Netzwerk- und Kommunikationsprotokoll
+# MW-Dezentrales Netzwerk- und Kommunikationsprotokoll
 
 ## 1.1 Fachliche Kurzfassung
 
-Dies ist ein kryptographisches verschlüsseltes dezentrales **Netzwerkprotokoll** für die Kommunikation mit 433 MHz Sendern und Empfängern, das mehrere Gruppen unterstützt.
-Die Technologie kann auch für eine Kabelverbindungen verwendet werden.
+Dies ist ein kryptographisches, verschlüsseltes und dezentrales **Netzwerkprotokoll** für die Kommunikation zwischen Computern, das mehrere Untergruppen unterstützt.
+Die Technologie kann sowie für eine Kabelverbindungen als auch für 433 Mhz Radiofunkmodulen verwendet werden.
+Generell funktioniert das Protokoll auf jedem geteilten Medium (auch z.B. Licht, Lasern, ...), das zwei verschiedene Zustände hat.
 
 ## 1.2 Motivation und Fragestellung
 
@@ -13,15 +14,15 @@ Die steigende Nachfrage nach sicheren Kommunikationsprotokollen für drahtlose o
 
 - **1.0 Einleitung**
   - **1.1 Fachliche Kurzfassung**
-  - **1.2 Motivation und Fragestellung** - Wie sind wir auf das Thema gekommen?
+  - **1.2 Motivation und Fragestellung**
 - **2.0 Hauptteil**
   - **1.1 Vorgehensweise, Materialien und Methoden**
   - **1.2 Hintergrund und theoretische Grundlagen** - Die informatischen und kryptographischen Grundprinzipien
   - **2.3 Signalzustände** - Wie werden die "Einsen und Nullen" gesendet?
-  - **2.4 Paketformat** - Was ist eigentlich ein Paket?
+  - **2.4 Paketformat** - Was ist ein Paket?
   - **2.5 Grundlegende Datenübertragung** - Bytes/Zahlen senden und empfangen?
-  - **2.6 Paketübertragungsregeln** - Ab wann kann ein Paket gesendet werden?
-  - **2.7 Netzwerk-Hierarchie** - Wie ist das Netzwerk aufgebaut?
+  - **2.6 Paketübertragungsregeln** - Ab wann kann ein Paket ohne Überschneidungen gesendet werden?
+  - **2.7 Netzwerk-Hierarchie** - Wie ist das Netzwerk strukturiert?
   - **2.8 Signierung** - Wie kann sich jeder im Netzwerk sicher sein, dass ein Paket wirklich von einem bestimmten Benutzer gesendet wurde?
   - **2.9 Paketstruktur** - Wie sind die Pakete aufgebaut und wie funktioniert das Netzwerkprotokoll?
 - **3.0 Schluss und Ergebnisse**
@@ -32,58 +33,58 @@ Die steigende Nachfrage nach sicheren Kommunikationsprotokollen für drahtlose o
   - **3.5 Quellen- und Literaturverzeichnis**
   - **3.6 Umgang mit KI**
 
-## Vorgehensweise, Materialien und Methoden
+## 2.1 Vorgehensweise, Materialien und Methoden
 
-- Paketstruktur:
-  - Zustandswechsel (HIGH/LOW) zur Übertragung von Binärzahlen/-daten.
-  - Kollisionserkennung und -vermeidung, basierend auf zufälligen Wartezeiten.
 - Hardware:
-  - 433 MHz RF-Module als Funkplattform / Kabel zur verbindung (ein Kable benötigt + Erdung).
-  - Mikrocontroller (ESP-32) für Signalverarbeitung.
+  - Ein Kable wird zur Datenübertragung benötigt (+ ein Erdungskabel).
+  - Ein Mikrocontroller (ESP-32) für die Signalverarbeitung.
 - Software:
-  - Implementierung der Protokollregeln in C++ (PlatformIO).
+  - Implementierung der Protokollregeln in C++ (PlatformIO mit dem Arduino-Framework).
 
-## Hintergrund und theoretische Grundlagen
+## 2.2 Hintergrund und theoretische Grundlagen
 
 - **Netzwerk-Hierarchie**: Einteilung in virtuelle Gruppen zur besseren Skalierbarkeit und Sicherheit.
-- **Hashing**: Ein Hash ist eine Einwegfunktion, die bei demselben Input immer demselben Output ergibt. Von dem Output kann aber kein Input errechnet werden. Außerdem verändert sich der Output selbst bei kleinen Veränderungen stark. Alle Pakete enthalten einen Hash, um Fehler bei der Datenübertragung des Pakets zu finden.
-- **Signierung**: Alle Pakete in einer Gruppe enthalten einen Hash, um zu erkennen, welcher Benutzer es gesendet hat.
-- **Verschlüsselung**: Sensible Datenfelder werden unter Verwendung einer Kombination aus Passwort und Salt verschlüsselt.
-- **Salt**: Eine Zusatzdatenmenge zu dem Verschlüsselungsschlüssel, der Mengenanalysen von verschlüsselten Daten erschwert.
+- **Hashing**: Ein Hash ist eine Einwegfunktion, die bei demselben Input immer denselben Output ergibt. Von dem Output kann aber kein Input errechnet werden. Außerdem verändert sich der Output selbst bei kleinen Veränderungen stark. Alle Pakete enthalten einen oder mehere Hashs, um Fehler bei der Datenübertragung des Pakets zu finden.
+- **Signierung**: Alle Pakete in einer Gruppe enthalten eine Signierung, um zu prüfen, ob es wirklich von dem richtigen Benutzer gesendet wurde.
+- **Salt**: Eine Zusatzdatenmenge zu dem Verschlüsselungsschlüssel, der Mengenanalysen von verschlüsselten Daten erschwert bis hin zu unmöglich macht.
+- **Verschlüsselung**: Sensible Datenfelder werden mit einer Kombination aus Passwort und Salt verschlüsselt.
 - **Binäre Zahlen**: Ein Zahlensystem das nur mit den Ziffern 1 und 0 arbeitet. In diesem Fall Strom an (`HIGH`) als 1 und Strom aus als 0 (`LOW`).
 
-## 2.1 Signalzustände
+## 2.3 Signalzustände
 
 - Die Verbindung kann entweder auf `HIGH` (aktiv/Strom fließt) oder `LOW` (inaktiv/Strom fließt nicht) gesetzt werden.
 - Die Zustände können auch Binärziffern darstellen, die zu Binärzahlen zusammengesetzt werden.
-- Der Zustand wird in einem Intervall (delayTime (**_50 Mikrosekunden_**) Zeit pro Runde) geändert.
+- Der Zustand wird in einem Intervall (delayTime (z.B. **_50 Mikrosekunden_**) Zeit pro Bit (BAUD-Rate)) geändert.
 
-## 2.2 Paketformat
+## 2.4 Paketformat
 
-Das Netzwerkprotokoll teilt die Daten, die über die Leitung gesendet werden in Byte-Pakete, Pakete und Chunks ein. Dies sin virtuelle Einteilungen.
+Das Netzwerkprotokoll teilt die Daten, die über die Leitung gesendet werden in Byte-Pakete, Chunks und Pakete ein.
+Dies sin virtuelle Einteilungen, die zum Verständnis des Protokolls wichtig sind.
 
 ### Pakete: Jedes Paket folgt einem strukturierten Format:
 
 Pakete setzen sich aus Chunks (kleinere Einheiten des Pakets mit Namen, Wert und Länge) zusammen.
-Diese werden in eckigen Klammern angegeben.
+Diese werden in eckigen Klammern visualisiert.
 
-- `[HIGH]`: Markiert den Beginn des Pakets. Es ist immer ein 1 Bit Chunk.
-- `[FUNCTION=x|1B]`: Ein festes 1-Byte-Feld, das den Zweck des Pakets definiert.
+- `[HIGH]`: Markiert den Beginn eines Pakets. Es ist immer ein 1 Bit Chunk.
+- `[FUNCTION=x|1B]`: Ein fester 1-Byte-Chunk, der den Zweck des Pakets definiert.
 - Weitere Felder sind im Format `[NAME=VALUE|LENGTH]` angegeben:
   - **NAME**: Name des Chunks.
-  - **VALUE**: Wert des Chunks oder dessen Standardwert oder Nichts.
+  - **VALUE**: Wert des Chunks, dessen Standardwert oder Nichts.
   - **LENGTH**: Feldgröße, angegeben als `xB` (Bytes) oder `xBit` (Bits). Hier können auch vorherige Chunk-Variablen verwendet werden.
   - Verschlüsselte Werte werden als `VALUE x (PASSWORD + SALT)` angegeben.
   - Felder können aus verketteten Chunks bestehen.
-- `[LOW]`: Markiert das Ende des Pakets. Es ist immer ein 1 Bit Chunk.
+- `[LOW]`: Markiert das Ende des Pakets. Es ist immer ein 1 Bit Chunk, der die Leitung insgesamt auf `LOW` setzt.
 
 #### Beispiel:
 
-`[HIG] [FN=100|1B] [CHUNK1|2B] [LENGTH|1B] [DATA|LENGTH*1B] [LOW]`
+`[HIG] [FN=100|1B] [CHUNK1|2B] [DATA_LENGTH|1B] [DATA|DATA_LENGTH*1B] [LOW]`
 
-#### Byte-Pakete: Die Möglichkeit 1 Byte (8 Bits) und die isFollowing Flag (1Bit) (source code unter dieser Sektion unter "Grundlegende Datenübertragung")
+`Start, Funktion 100, 2Bytes wert mit nicht definierten Nutzen, Dantenlänge (1Byte, 0-255), Daten (so lang wie der wert von DATA_LENGTH mal 1Byte), Ende`
 
-## Grundlegende Datenübertragung
+## 2.5 Grundlegende Datenübertragung
+
+**Byte-Pakete**: Die Möglichkeit 1 Byte (8 Bits) und die isFollowing Flag (1Bit), die zeigt, ob ein Paket auf ein anderes Folg, zu übertragen.
 
 ### Sender
 
@@ -91,11 +92,17 @@ In den Eckigen Klammern ist ein Wert. Dieser Wert zeigt den Zustand (`HIGH`/`LOW
 `HIGH` steht für "ja" oder "1", `LOW` steht für "nein" oder 0.
 
 - Am Anfang wird die "Leitung" auf `HIGH` gesetzt, was den Start des Bytepakets kennzeichnet.
-- Am Ende wird die "Leitung" auf `LOW` gesetzt, was dafür sorgt, dass die Leitung bei dem nächsten Paket am Anfang wieder auf `HIGH` gesetzt werden kann (Zustandsänderung).
+- Am Ende wird die "Leitung" auf `LOW` gesetzt, was dafür sorgt, dass die Leitung, bei dem nächsten Paket, am Anfang wieder auf `HIGH` gesetzt werden kann (Zustandsänderung).
 
-#### Einfache Darstellung: [XY] dauern ein Zeitinterval (delayTime/50Microsekunden)
+#### Einfache Darstellung: `[NAME]` dauert ein Zeitinterval und speichert ein Bit (delayTime/50Microsekunden)
 
 `[HIGH] [IS_FOLLOWING] [BIT_8] [BIT_7] [BIT_6] [BIT_5] [BIT_4] [BIT_3] [BIT_2] [BIT_1] [LOW]`
+
+Beispiel: die Zahl 129 (binär: 10000001) und isFollowing mit dem Wert ja übertragen:
+
+`[HIGH] 110000001 [LOW]`
+
+`[HIGH] [HIGH] [HIGH] [LOW] [LOW] [LOW] [LOW] [LOW] [LOW] [HIGH] [LOW]`
 
 ```cpp
 //WF=With isFollowingFlag
@@ -129,7 +136,7 @@ void rawSendByteWF(uint8_t value, int pin, int delayTime, bool isFollowing)
 ### Empfänger
 
 ```cpp
-// Datentyp zur vereinfachung
+// Datentyp zur Vereinfachung
 struct RawPacket
 {
     bool isFollowing;
@@ -167,7 +174,7 @@ RawPacket rawReadByteWF(uint8_t pin, int delayTime)
 }
 ```
 
-## Paketübertragungsregeln
+## 2.6 Paketübertragungsregeln
 
 1.  **Startbedingungen**:
 
@@ -200,10 +207,10 @@ void waitForBytePacketEnd()
 }
 ```
 
-2.  **Kollisionsvermeidung**:
+2.  **Kollisionsvermeidung**: Geräte verwenden die Zeit seit der letzten Paketübertragung, um für eine zufällige Zeitspanne zwischen (sendDelay `*` 13) und (500 `*` sendDelay) Mikrosekunden zu warten, bevor sie versuchen, die Verbindung auf `HIGH` zu setzen.
 
-    - Geräte verwenden die Zeit seit der letzten Paketübertragung, um für ein zufälliges Intervall zwischen 1000 und 50000 Mikrosekunden zu warten, bevor sie versuchen, die Verbindung auf `HIGH` zu ziehen. Wenn der Sender mehrmals versucht ein Paket zu senden, wird die maximale Zufallszeit verkürzt, dass es wahrscheinlicher wird, das Paket als nächstes zu senden.
-    - Bleibt die Leitung bis die zufällige Wartezeit vorbei ist auf `LOW`, kann der Sender mit der Übertragung des Pakets fortfahren.
+    - Wenn die Leitug auf `HIGH` wechselt muss der Benutzer am Ende des von jemand anderen gesendeten Pakets den Versuch wiederholen. Wenn der Sender mehrmals versucht ein Paket zu senden, wird die maximale Zufallszeit verkürzt, dass es wahrscheinlicher wird, das Paket als nächstes zu senden.
+    - Bleibt die Leitung bis die zufällige Wartezeit vorbei ist auf `LOW`, kann der Sender die Leitung auf `HIGH` setzen und mit der Übertragung des Pakets fortfahren.
 
 ### Code Beispiel
 
@@ -240,9 +247,9 @@ void send(uint8_t pin, const RawPacket &packet) {
 
 ## Netzwerk-Hierarchie
 
-Das **NETZWERK** ist die physische Verbindung, die mit 433 MHz RF-Modulen (oder mit einer Kabelverbindung) hergestellt wird.
+Das **NETZWERK** ist die physische Verbindung, die mit mit einer Kabelverbindung, 433 MHz RF-Modulen oder einer physikalischen Verbindung jeder Art, die mindestens zwei Zustände hat, (z.B. Licht) hergestellt wird.
 
-Die **GRUPPEn** sind virtuelle Netzwerke, die Verschlüsselung für eine sichere Kommunikation implementieren. Es kann bis zu **65.536 GRUPPEn** geben.
+Die **GRUPPEN** sind virtuelle Netzwerke, die Verschlüsselung für eine sichere Kommunikation implementieren. Es kann bis zu **65.536 GRUPPEN** geben.
 Benutzer innerhalb einer GRUPPE können den Verbindungsprozess verwalten, daten senden oder bis zu **65.536 BENUTZER** einladen.  
 Jeder Benutzer ist Mitglied einer oder mehrerer GRUPPEn und kann gleichzeitig mit mehreren Netzwerken verbunden sein.
 In Jeder der Gruppen ist jeder Benutzer gleichberechtigt.
@@ -250,15 +257,15 @@ In Jeder der Gruppen ist jeder Benutzer gleichberechtigt.
 Benutzer können folgende Aktionen durchführen:
 
 - Verschlüsselte Nachrichten an andere Benutzer innerhalb der GRUPPE senden.
-- Nachrichten an alle Mitglieder der GRUPPE Broad casten.
+- Nachrichten an alle Mitglieder der GRUPPE broadcasten.
 - Nachrichten an das gesamte NETZWERK senden.
-- Nachrichten im gesamte NETZWERK mit MAC-Adressen senden.
+- Nachrichten im gesamte NETZWERK an MAC-Adressen senden.
 - Auf Pakete antworten.
 
 ### Übersicht der Hierarchie
 
 ```plaintext
-NETZWERK (433Mhz / Kabelverbindung)
+NETZWERK (Kabelverbindung / 433Mhz Radiofunk / Verbindung)
   ├── GRUPPE 1
   │     ├── BENUTZER 1
   │     ├── BENUTZER 2
@@ -277,7 +284,7 @@ NETZWERK (433Mhz / Kabelverbindung)
   ...
 ```
 
-Diese Hierarchie gewährleistet eine strukturierte Organisation der Benutzer innerhalb sicherer und skalierbarer virtueller GRUPPEn, unterstützt durch ein robustes physisches NETZWERK.
+Diese Hierarchie gewährleistet eine strukturierte Organisation der Benutzer innerhalb sicherer und skalierbarer virtueller GRUPPEN, unterstützt durch ein robustes physisches NETZWERK.
 
 ## Signierung
 
@@ -294,12 +301,12 @@ Diese Hierarchie gewährleistet eine strukturierte Organisation der Benutzer inn
    Um eine Nachricht zu signieren, sendet der Benutzer:
 
    - Den ursprünglichen zufälligen Wert (`SIGN_VALUE`)
-   - Den nächsten gehashten zufälligen Wert (`NEXT_SIGN_VALUE_HASH`), um die nächste Nachricht zu identifizieren (diese muss im gleichen Paket gesendet werden)
+   - Den nächsten gehashten zufälligen Wert (`NEXT_SIGN_VALUE_HASH`), um die nächste Nachricht zu auch signieren zu können. (diese muss im gleichen Paket gesendet werden)
 
-Benutzer die überprüfen wollen, ob eine Nachricht von dem richtigen Benutzer gesendet wurde, können den HASH des Gesendeten Werts `SIGN_VALUE` mit dem Hash `SIGN_VALUE_HASH` abgleichen.
+Benutzer die überprüfen wollen, ob eine Nachricht von dem richtigen Benutzer gesendet wurde, können den HASH des Gesendeten Werts `SIGN_VALUE` mit dem Hash `SIGN_VALUE_HASH` abgleichen. Wenn die Beiden Hashe äquivalent sind is der Sender sicher der echte Sender. 
 
-Da eine Hashfunktion eine Einwegfunktion ist kann kein übereinstimmender Wert ausgängig von dem Hash generiert werden.
-Dies stellt sicher, dass jede Nachricht eindeutig identifizierbar ist.
+Da eine Hashfunktion eine Einwegfunktion ist kann kein übereinstimmender Wert ausgängig von dem Hash generiert werden (außser durch raten).
+Dies stellt sicher, dass jede Nachricht eindeutig verizierbar ist.
 
 Das Format lautet:
 
@@ -496,7 +503,7 @@ Das entwickelte Protokoll bietet eine vielversprechende Grundlage für sichere u
 
 Mit der erfolgreichen Umsetzung des Unterprotokolls ist ein wesentlicher erster Schritt getan. Die nächsten Schritte eröffnen nicht nur neue technische Möglichkeiten, sondern auch den Weg zu vielfältigen Anwendungen in der realen Welt.
 
-# Quellen- und Literaturverzeichnis
+## Quellen- und Literaturverzeichnis
 
 1. https://docs.espressif.com/projects/arduino-esp32/en/latest/api/gpio.html
 2. https://de.wikipedia.org/wiki/Hashfunktion
