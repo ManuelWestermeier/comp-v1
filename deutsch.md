@@ -24,7 +24,7 @@ Die steigende Nachfrage nach sicheren Kommunikationsprotokollen für drahtlose o
   - **2.6 Paketübertragungsregeln** - Ab wann kann ein Paket ohne Überschneidungen gesendet werden?
   - **2.7 Netzwerk-Hierarchie** - Wie ist das Netzwerk strukturiert?
   - **2.8 Signierung** - Wie kann sich jeder im Netzwerk sicher sein, dass ein Paket wirklich von einem bestimmten Benutzer gesendet wurde?
-  - **2.9 Paketstruktur** - Wie sind die Pakete aufgebaut und wie funktioniert das Netzwerkprotokoll?
+  - **2.9 Pakettypen** - Wie sind die Pakete aufgebaut und wie funktioniert das Netzwerkprotokoll?
 - **3.0 Schluss und Ergebnisse**
   - **3.1 Ergebnisse**
   - **3.2 Ergebniss Diskussion**
@@ -245,7 +245,7 @@ void send(uint8_t pin, const RawPacket &packet) {
 }
 ```
 
-## Netzwerk-Hierarchie
+## 2.7 Netzwerk-Hierarchie
 
 Das **NETZWERK** ist die physische Verbindung, die mit mit einer Kabelverbindung, 433 MHz RF-Modulen oder einer physikalischen Verbindung jeder Art, die mindestens zwei Zustände hat, (z.B. Licht) hergestellt wird.
 
@@ -286,7 +286,7 @@ NETZWERK (Kabelverbindung / 433Mhz Radiofunk / Verbindung)
 
 Diese Hierarchie gewährleistet eine strukturierte Organisation der Benutzer innerhalb sicherer und skalierbarer virtueller GRUPPEN, unterstützt durch ein robustes physisches NETZWERK.
 
-## Signierung
+## 2.8 Signierung
 
 1. **Generierung eines zufälligen Werts**  
    Der Benutzer generiert einen zufälligen 4-Byte-Wert, bezeichnet als `SIGN_VALUE`.
@@ -315,7 +315,7 @@ Das Format lautet:
 
 ---
 
-## Pakettypen
+## 2.9 Pakettypen
 
 1. **LF_HASH**: der Hash aus Längenvariablen und der Funktion
 2. **HASH**: der Hash aus dem gesamten Paket
@@ -446,7 +446,7 @@ Dieses Paket kann erst gesendet werden, nachdem ein vorheriges Paket fehlerfrei 
 
 ---
 
-## Ergebnisse
+## 3.1 Ergebnisse
 
 1.  Implementierung des Unterprotokolls
     Das Unterprotokoll zur Übertragung von roh-binären Daten konnte erfolgreich umgesetzt werden. Dabei wurden die Zustände HIGH und LOW zur Darstellung der Binärwerte 1 und 0 verwendet. Die Übertragung zeigte in ersten Tests eine stabile Kommunikation zwischen Sender und Empfänger.
@@ -460,7 +460,7 @@ Dieses Paket kann erst gesendet werden, nachdem ein vorheriges Paket fehlerfrei 
 4.  Dezentralisierte Gruppenzuweisung
     Die Datenstruktur der Gruppenkommunikation zeigte sich als skalierbar für mehrere Gruppen. Die theoretische Grenze von bis zu 65.536 Gruppen konnte im Code erfolgreich abgebildet werden.
 
-## Ergebniss Diskussion
+## 3.2 Ergebniss Diskussion
 
 Die bisherigen Ergebnisse zeigen vielversprechende Ansätze zur Realisierung eines zuverlässigen, verschlüsselten und dezentralisierten Kommunikationssystems auf Basis einfacher Zustandsübertragung.
 
@@ -479,7 +479,7 @@ Die bisherigen Ergebnisse zeigen vielversprechende Ansätze zur Realisierung ein
    Potenzielle Anwendungen des Systems reichen von drahtlosen Sensor-Netzwerken bis hin zur verschlüsselten Kommunikation für smarte Geräte. Die Möglichkeit, das Protokoll sowohl kabelgebunden als auch drahtlos zu betreiben, erhöht seine Anwendungsbreite.
    Theoretisch kann das Protokoll auch bei allen anderen Objekten, die zwei Zustände annehmen können eingesetzt werden (z. B. Taschenlampen, Laser).
 
-## Ausblick
+## 3.3 Ausblick
 
 Das entwickelte Protokoll bietet eine vielversprechende Grundlage für sichere und skalierbare Kommunikation sowohl über drahtlose als auch kabelgebundene Netzwerke. Die Kombination von Hashing, Verschlüsselung und Signaturprüfung sorgt für eine hohe Integrität und Vertraulichkeit der übertragenen Daten.
 
@@ -506,18 +506,18 @@ Das entwickelte Protokoll bietet eine vielversprechende Grundlage für sichere u
 7. **Entwicklung eines Messenger-Dienstes**:
    Ein Protokoll-spezifischer Messenger-Dienst könnte eine benutzerfreundliche Möglichkeit darstellen, das Potenzial der Technologie zu demonstrieren und praktische Anwendungsszenarien zu erforschen.
 
-## Fazit
+## 3.4 Fazit
 
 Mit der erfolgreichen Umsetzung des Unterprotokolls ist ein wesentlicher erster Schritt getan. Die nächsten Schritte eröffnen nicht nur neue technische Möglichkeiten, sondern auch den Weg zu vielfältigen Anwendungen in der realen Welt.
 
-## Quellen- und Literaturverzeichnis
+## 3.5 Quellen- und Literaturverzeichnis
 
 1. https://docs.espressif.com/projects/arduino-esp32/en/latest/api/gpio.html
 2. https://de.wikipedia.org/wiki/Hashfunktion
 3. https://en.wikipedia.org/wiki/Encryption
 4. https://de.wikipedia.org/wiki/Signatur
 
-## Umgang mit KI
+## 3.6 Umgang mit KI
 
 Die Nutzung der KI ChatGPT ist mit einer Autokorrektur vergleichbar.
 Sie wurde ausschließlich dazu eingesetzt, geschriebene Texte zu verbessern und Rechtschreibfehler zu korrigieren.
