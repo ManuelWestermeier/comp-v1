@@ -44,13 +44,14 @@ Die steigende Nachfrage nach sicheren Kommunikationsprotokollen für drahtlose o
 ## 2.1 Vorgehensweise, Materialien und Methoden
 
 - Hardware:
-  - Ein Kabel wird zur Datenübertragung benötigt (plus Erdungskabel).
   - Ein Mikrocontroller (ESP-32) für die Signalverarbeitung.
-
-<!-- <img src=""> -->
-
+  - Ein Kabel wird zur Datenübertragung benötigt (plus Erdungskabel).
 - Software:
   - Implementierung der Protokollregeln in C++ (PlatformIO mit dem Arduino-Framework).
+
+Schaltkreis skizze: (Lame = GPIO Pin (input); Schalter = GPIO Pin (output))
+<br/>
+<img src="schaltkreis.png" style="float: righ;">
 
 ## 2.2 Hintergrund und theoretische Grundlagen
 
@@ -94,7 +95,6 @@ Diese werden in eckigen Klammern visualisiert.
 `[HIG] [FN=100|1B] [CHUNK1|2B] [DATA_LENGTH|1B] [DATA|DATA_LENGTH*1B] [LOW]`
 
 `Start, Funktion 100, 2Bytes wert mit nicht definierten Nutzen, Dantenlänge (1Byte, 0-255), Daten (so lang wie der wert von DATA_LENGTH mal 1Byte), Ende`
-
 
 <div style="page-break-after: always;"></div>
 
@@ -226,8 +226,6 @@ void waitForBytePacketEnd()
     }
 }
 ```
-
-<div style="page-break-after: always;"></div>
 
 2.  **Kollisionsvermeidung**: Geräte verwenden die Zeit seit der letzten Paketübertragung, um für eine zufällige Zeitspanne zwischen (sendDelay `*` 13) und (500 `*` sendDelay) Mikrosekunden zu warten, bevor sie versuchen, die Verbindung auf `HIGH` zu setzen.
 
