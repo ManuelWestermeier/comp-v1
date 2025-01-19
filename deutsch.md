@@ -155,8 +155,6 @@ void rawSendByteWF(uint8_t value, int pin, int delayTime, bool isFollowing)
 }
 ```
 
-<div style="page-break-after: always;"></div>
-
 ### Empfänger
 
 ```cpp
