@@ -1,5 +1,11 @@
 # MW-Dezentrales Netzwerk- und Kommunikationsprotokoll
 
+<style>
+  body {
+    font-size: 10px;
+  }
+</style>
+
 ## Inhalsverzeichnis
 
 - **1.0 Einleitung**
