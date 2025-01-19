@@ -1,17 +1,5 @@
 # MW-Dezentrales Netzwerk- und Kommunikationsprotokoll
 
-## 1.1 Fachliche Kurzfassung
-
-Dies ist ein kryptographisches, verschlüsseltes und dezentrales **Netzwerkprotokoll** für die Kommunikation zwischen Computern, das mehrere Untergruppen unterstützt.
-Die Technologie kann sowie für eine Kabelverbindungen als auch für 433 Mhz Radiofunkmodulen verwendet werden.
-Generell funktioniert das Protokoll auf jedem geteilten Medium (auch z.B. Licht, Lasern, ...), das zwei verschiedene Zustände hat.
-
-## 1.2 Motivation und Fragestellung
-
-Die steigende Nachfrage nach sicheren Kommunikationsprotokollen für drahtlose oder kabelgebundene Netzwerke erfordert effiziente und skalierbare Lösungen. Wie kann ein robustes, kryptografisch sicheres Protokoll für den Einsatz in einfachen, aber vielseitigen Hardwareplattformen realisiert werden? Diese Arbeit bietet eine Antwort durch die Entwicklung eines Protokolls, das sowohl Datenintegrität als auch Vertraulichkeit sicherstellt.
-
-<div style="page-break-after: always;"></div>
-
 ## Inhalsverzeichnis
 
 - **1.0 Einleitung**
@@ -29,7 +17,7 @@ Die steigende Nachfrage nach sicheren Kommunikationsprotokollen für drahtlose o
   - **2.9 Pakettypen** - Wie sind die Pakete aufgebaut und wie funktioniert das Netzwerkprotokoll?
 - **3.0 Schluss und Ergebnisse**
   - **3.1 Ergebnisse**
-  - **3.2 Ergebniss Diskussion**
+  - **3.2 Ergebnis Diskussion**
   - **3.3 Ausblick**
   - **3.4 Fazit**
   - **3.5 Quellen- und Literaturverzeichnis**
@@ -37,11 +25,30 @@ Die steigende Nachfrage nach sicheren Kommunikationsprotokollen für drahtlose o
 
 <div style="page-break-after: always;"></div>
 
+# 1.0 Einleitung
+
+## 1.1 Fachliche Kurzfassung
+
+Dies ist ein kryptographisches, verschlüsseltes und dezentrales **Netzwerkprotokoll** für die Kommunikation zwischen Computern, das mehrere Untergruppen unterstützt.
+Die Technologie kann sowohl für Kabelverbindungen als auch für 433 Mhz Radiofunkmodule verwendet werden.
+Generell funktioniert das Protokoll auf jedem geteilten Medium (auch z.B. Licht, Laser usw.), das zwei verschiedene Zustände hat.
+
+## 1.2 Motivation und Fragestellung
+
+Die steigende Nachfrage nach sicheren Kommunikationsprotokollen für drahtlose oder kabelgebundene Netzwerke erfordert effiziente und skalierbare Lösungen. Wie kann ein robustes, kryptografisch sicheres Protokoll für den Einsatz in einfachen, aber vielseitigen Hardwareplattformen realisiert werden? Diese Arbeit bietet eine Antwort durch die Entwicklung eines Protokolls, das sowohl Datenintegrität als auch Vertraulichkeit sicherstellt.
+
+<div style="page-break-after: always;"></div>
+
+# 2.0 Hauptteil
+
 ## 2.1 Vorgehensweise, Materialien und Methoden
 
 - Hardware:
-  - Ein Kable wird zur Datenübertragung benötigt (+ ein Erdungskabel).
+  - Ein Kabel wird zur Datenübertragung benötigt (plus Erdungskabel).
   - Ein Mikrocontroller (ESP-32) für die Signalverarbeitung.
+
+<!-- <img src=""> -->
+
 - Software:
   - Implementierung der Protokollregeln in C++ (PlatformIO mit dem Arduino-Framework).
 
@@ -60,10 +67,12 @@ Die steigende Nachfrage nach sicheren Kommunikationsprotokollen für drahtlose o
 - Die Zustände können auch Binärziffern darstellen, die zu Binärzahlen zusammengesetzt werden.
 - Der Zustand wird in einem Intervall (delayTime (z.B. **_50 Mikrosekunden_**) Zeit pro Bit (BAUD-Rate)) geändert.
 
+<div style="page-break-after: always;"></div>
+
 ## 2.4 Paketformat
 
-Das Netzwerkprotokoll teilt die Daten, die über die Leitung gesendet werden in Byte-Pakete, Chunks und Pakete ein.
-Dies sin virtuelle Einteilungen, die zum Verständnis des Protokolls wichtig sind.
+Das Netzwerkprotokoll teilt die Daten, die über die Leitung gesendet werden, in Byte-Pakete (8 Bits/8 "Einsen und Nullen"), Chunks und Pakete ein.
+Dies sind virtuelle Einteilungen, die zum Verständnis des Protokolls wichtig sind.
 
 ### Pakete: Jedes Paket folgt einem strukturierten Format:
 
@@ -86,19 +95,22 @@ Diese werden in eckigen Klammern visualisiert.
 
 `Start, Funktion 100, 2Bytes wert mit nicht definierten Nutzen, Dantenlänge (1Byte, 0-255), Daten (so lang wie der wert von DATA_LENGTH mal 1Byte), Ende`
 
+
+<div style="page-break-after: always;"></div>
+
 ## 2.5 Grundlegende Datenübertragung
 
-**Byte-Pakete**: Die Möglichkeit 1 Byte (8 Bits) und die isFollowing Flag (1Bit), die zeigt, ob ein Paket auf ein anderes Folg, zu übertragen.
+**Byte-Paket**: Die Möglichkeit 1 Byte (8 Bits) und die isFollowing Flag (1Bit) zu übertragen.
 
 ### Sender
 
-In den Eckigen Klammern ist ein Wert. Dieser Wert zeigt den Zustand (`HIGH`/`LOW`).
+In den eckigen Klammern ist der Wert. Dieser Wert zeigt den Zustand (`HIGH`/`LOW`).
 `HIGH` steht für "ja" oder "1", `LOW` steht für "nein" oder 0.
 
 - Am Anfang wird die "Leitung" auf `HIGH` gesetzt, was den Start des Bytepakets kennzeichnet.
 - Am Ende wird die "Leitung" auf `LOW` gesetzt, was dafür sorgt, dass die Leitung, bei dem nächsten Paket, am Anfang wieder auf `HIGH` gesetzt werden kann (Zustandsänderung).
 
-#### Einfache Darstellung: `[NAME]` dauert ein Zeitinterval und speichert ein Bit (delayTime/50Microsekunden)
+#### Einfache Darstellung: `[NAME]` dauert ein Zeitintervall und speichert ein Bit (delayTime/50Microsekunden)
 
 `[HIGH] [IS_FOLLOWING] [BIT_8] [BIT_7] [BIT_6] [BIT_5] [BIT_4] [BIT_3] [BIT_2] [BIT_1] [LOW]`
 
@@ -120,7 +132,7 @@ void rawSendByteWF(uint8_t value, int pin, int delayTime, bool isFollowing)
     digitalWrite(pin, isFollowing ? HIGH : LOW);
     delayMicroseconds(delayTime); // Pause
 
-    // Jeder Daten-Bit eines Bytes (8 Bits) senden (LSB-first)
+    // Jedes Daten-Bit eines Bytes (8 Bits) senden (LSB-first)
     for (uint8_t i = 0; i < 8; i++)
     {
         // Jedes Bit extrahieren und dann senden
@@ -136,6 +148,8 @@ void rawSendByteWF(uint8_t value, int pin, int delayTime, bool isFollowing)
     delayMicroseconds(delayTime); // Pause
 }
 ```
+
+<div style="page-break-after: always;"></div>
 
 ### Empfänger
 
@@ -178,13 +192,15 @@ RawPacket rawReadByteWF(uint8_t pin, int delayTime)
 }
 ```
 
+<div style="page-break-after: always;"></div>
+
 ## 2.6 Paketübertragungsregeln
 
 1.  **Startbedingungen**:
 
     - Um ein Paket zu senden, stellt der Sender sicher, dass die Verbindung für eine festgelegte "maximale Sendezeit" (13 `*` delayTime) auf `LOW` bleibt.
-      Da pro Byte-Paket mindestens 1 mal der Zustand `HIGH` übertragen werden muss (am Start) und das Senden eines Byte-Paket ca. 12 `*` delayTime + 1 `*` delayTime (Puffer) dauert kann man sagen, dass wenn die Leitung 13 `*` delayTime (50 Microsekunden) lang auf `LOW` steht Nichts gesendet wurde.
-      Und der Nutzer mit dem sicheren Paketlesen anfangen kann.
+      Da pro Byte-Paket mindestens einmal der Zustand `HIGH` übertragen werden muss (am Start) und das Senden eines Byte-Pakets ca. 12 `*` delayTime + 1 `*` delayTime (Puffer) dauert, kann man sagen, dass, wenn die Leitung 13 `*` delayTime (50 Microsekunden) lang auf `LOW` bleibt, nichts gesendet wurde
+      und der Nutzer mit dem sicheren "Paket lesen" anfangen kann.
     - Wenn die Verbindung während dieses Zeitraums auf `HIGH` wechselt, muss der Sender den Versuch wiederholen.
 
 ### Code Beispiel
@@ -192,7 +208,7 @@ RawPacket rawReadByteWF(uint8_t pin, int delayTime)
 ```cpp
 void waitForBytePacketEnd()
 {
-    // den Zeitpunkt, an dem (connection.sendDelay * 13) lange nichts gesendet wurde, was heißt, dass das letzte Paket zu Ende ist
+    // den Zeitpunkt, an dem (connection.sendDelay * 13) lange nichts gesendet wurde, was heißt, dass das letzte Paket zu Ende ist.
     auto timeToWait = micros() + (connection.sendDelay * 13);
     while (true)
     {
@@ -202,7 +218,7 @@ void waitForBytePacketEnd()
         {
             return;
         }
-        // wenn doch etwas gesendet wird, wird der timer zurück gesetzt
+        // wenn doch etwas gesendet wird, wird der timer zurückgesetzt
         else if (digitalRead(connection.inpPin) == HIGH)
         {
             auto timeToWait = now + (connection.sendDelay * 13);
@@ -211,10 +227,12 @@ void waitForBytePacketEnd()
 }
 ```
 
+<div style="page-break-after: always;"></div>
+
 2.  **Kollisionsvermeidung**: Geräte verwenden die Zeit seit der letzten Paketübertragung, um für eine zufällige Zeitspanne zwischen (sendDelay `*` 13) und (500 `*` sendDelay) Mikrosekunden zu warten, bevor sie versuchen, die Verbindung auf `HIGH` zu setzen.
 
-    - Wenn die Leitug auf `HIGH` wechselt muss der Benutzer am Ende des von jemand anderen gesendeten Pakets den Versuch wiederholen. Wenn der Sender mehrmals versucht ein Paket zu senden, wird die maximale Zufallszeit verkürzt, dass es wahrscheinlicher wird, das Paket als nächstes zu senden.
-    - Bleibt die Leitung bis die zufällige Wartezeit vorbei ist auf `LOW`, kann der Sender die Leitung auf `HIGH` setzen und mit der Übertragung des Pakets fortfahren.
+    - Wenn die Leitug auf `HIGH` wechselt, muss der Benutzer am Ende des von einem anderen gesendeten Paket, den Versuch wiederholen. Wenn der Sender mehrmals versucht ein Paket zu senden, wird die maximale Zufallszeit verkürzt, so dass es wahrscheinlicher wird, das Paket als nächstes zu senden.
+    - Bleibt die Leitung, bis die zufällige Wartezeit vorbei ist, auf `LOW`, kann der Sender die Leitung auf `HIGH` setzen und mit der Übertragung des Pakets fortfahren.
 
 ### Code Beispiel
 
@@ -249,21 +267,23 @@ void send(uint8_t pin, const RawPacket &packet) {
 }
 ```
 
+<div style="page-break-after: always;"></div>
+
 ## 2.7 Netzwerk-Hierarchie
 
-Das **NETZWERK** ist die physische Verbindung, die mit mit einer Kabelverbindung, 433 MHz RF-Modulen oder einer physikalischen Verbindung jeder Art, die mindestens zwei Zustände hat, (z.B. Licht) hergestellt wird.
+Das **NETZWERK** ist die physische Verbindung, die mit einer Kabelverbindung, 433 MHz RF-Modulen oder einer physikalischen Verbindung jeder Art, die mindestens zwei Zustände aufweisen muss, (z.B. Licht) hergestellt wird.
 
-Die **GRUPPEN** sind virtuelle Netzwerke, die Verschlüsselung für eine sichere Kommunikation implementieren. Es kann bis zu **65.536 GRUPPEN** geben.
-Benutzer innerhalb einer GRUPPE können den Verbindungsprozess verwalten, daten senden oder bis zu **65.536 BENUTZER** einladen.  
-Jeder Benutzer ist Mitglied einer oder mehrerer GRUPPEn und kann gleichzeitig mit mehreren Netzwerken verbunden sein.
-In Jeder der Gruppen ist jeder Benutzer gleichberechtigt.
+Die **GRUPPEN** sind virtuelle Netzwerke, die eine Verschlüsselung für eine sichere Kommunikation implementieren. Es kann bis zu **65.536 GRUPPEN** geben.
+Benutzer innerhalb einer GRUPPE können den Verbindungsprozess verwalten, Daten senden oder bis zu **65.536 BENUTZER** einladen.  
+Jeder Benutzer ist Mitglied einer oder mehrerer GRUPPEN und kann gleichzeitig mit mehreren Netzwerken verbunden sein.
+In jeder der Gruppen ist jeder Benutzer gleichberechtigt.
 
 Benutzer können folgende Aktionen durchführen:
 
 - Verschlüsselte Nachrichten an andere Benutzer innerhalb der GRUPPE senden.
 - Nachrichten an alle Mitglieder der GRUPPE broadcasten.
 - Nachrichten an das gesamte NETZWERK senden.
-- Nachrichten im gesamte NETZWERK an MAC-Adressen senden.
+- Nachrichten im gesamten NETZWERK an MAC-Adressen senden.
 - Auf Pakete antworten.
 
 ### Übersicht der Hierarchie
@@ -290,6 +310,8 @@ NETZWERK (Kabelverbindung / 433Mhz Radiofunk / Verbindung)
 
 Diese Hierarchie gewährleistet eine strukturierte Organisation der Benutzer innerhalb sicherer und skalierbarer virtueller GRUPPEN, unterstützt durch ein robustes physisches NETZWERK.
 
+<div style="page-break-after: always;"></div>
+
 ## 2.8 Signierung
 
 1. **Generierung eines zufälligen Werts**  
@@ -304,20 +326,20 @@ Diese Hierarchie gewährleistet eine strukturierte Organisation der Benutzer inn
 4. **Signieren einer Nachricht**  
    Um eine Nachricht zu signieren, sendet der Benutzer:
 
-   - Den ursprünglichen zufälligen Wert (`SIGN_VALUE`)
-   - Den nächsten gehashten zufälligen Wert (`NEXT_SIGN_VALUE_HASH`), um die nächste Nachricht zu auch signieren zu können. (diese muss im gleichen Paket gesendet werden)
+   - den ursprünglichen zufälligen Wert (`SIGN_VALUE`)
+   - den nächsten gehashten zufälligen Wert (`NEXT_SIGN_VALUE_HASH`), um die nächste Nachricht auch signieren zu können. (Diese muss im gleichen Paket gesendet werden.)
 
-Benutzer die überprüfen wollen, ob eine Nachricht von dem richtigen Benutzer gesendet wurde, können den HASH des Gesendeten Werts `SIGN_VALUE` mit dem Hash `SIGN_VALUE_HASH` abgleichen. Wenn die Beiden Hashe äquivalent sind is der Sender sicher der echte Sender.
+Benutzer, die überprüfen wollen, ob eine Nachricht von dem richtigen Benutzer gesendet wurde, können den HASH des gesendeten Werts `SIGN_VALUE` mit dem Hash `SIGN_VALUE_HASH` abgleichen. Wenn die beiden Hashes äquivalent sind, ist der Sender sicher der echte Sender.
 
-Da eine Hashfunktion eine Einwegfunktion ist kann kein übereinstimmender Wert ausgängig von dem Hash generiert werden (außser durch raten).
-Dies stellt sicher, dass jede Nachricht eindeutig verizierbar ist.
+Da eine Hashfunktion eine Einwegfunktion ist, kann kein übereinstimmender Wert ausgängig von dem Hash generiert werden (außser durch Raten).
+Dies stellt sicher, dass jede Nachricht eindeutig verifizierbar ist.
 
 Das Format lautet:
 
 1. Erstes Paket: (`... [CURRENT_SIGN_HASH|4B] ...`) (Dies zeigt den Nutzern den aktuellen Hash).
-2. Folgende Pakete: (`... [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] ...`) (Kann ein Paket "unterschreiben" und bringt den Hash für das Nächste Paket mit).
+2. Folgende Pakete: (`... [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] ...`) (Kann ein Paket "unterschreiben" und bringt den Hash für das nächste Paket mit).
 
----
+<div style="page-break-after: always;"></div>
 
 ## 2.9 Pakettypen
 
@@ -374,8 +396,6 @@ Bestätigt den erfolgreichen Beitritt zur Gruppe.
 
 `[HIGH] [FUNCTION=5|1B] [LF_HASH|1B] [PACKET_ID=random()|2B] [GROUP_ID|2B] /* Verschlüsselte Daten beginnen hier */ [ERROR_IDENTIFYER|2B] [USER_ID|2B] [CURRENT_SALT|4B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [LOW]`
 
----
-
 ### Erhalten der Signaturen der Benutzer in der Gruppe
 
 #### **6. WHO IS IN THE GROUP**
@@ -398,11 +418,9 @@ Weist darauf hin, wenn ein Benutzer den falschen Signatur-Hash sendet.
 
 #### **9. WRONG SIGN PACKET IS CORRUPTED**
 
-Weist darauf hin, wenn ein Hacker fälschlicherweise behauptet, ein Benutzer habe eine falsche Signatur, die jedoch gültig ist. Diese Kann nur durch einen anderen Benutzer gesendet werden (nicht HACKER).
+Weist darauf hin, wenn ein Hacker fälschlicherweise behauptet, ein Benutzer habe eine falsche Signatur, die jedoch gültig ist. Diese kann nur durch einen anderen Benutzer gesendet werden (nicht HACKER).
 
 `[HIGH] [FUNCTION=9|1B] [LF_HASH|1B] [PACKET_ID=random()|2B] [GROUP_ID|2B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [HACKER_USER_WITH_WRONG_SIGN_ID|2B] [WRONG_SIGN_PACKET_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|4B] [LOW]`
-
----
 
 ### Senden
 
@@ -438,7 +456,7 @@ Sendet eine Nachricht an einen Benutzer im Netzwerk über die MAC-Adresse.
 
 #### **30. PACKET DATA ERROR**
 
-Wenn der hash nicht mit den gesendeten Daten übereinstimmt, wird dieses Paket gesendet.
+Wenn der Hash nicht mit den gesendeten Daten übereinstimmt, wird dieses Paket gesendet.
 
 `[HIGH] [FUNCTION=30|1B] [LF_HASH|1B] [PACKET_ID=random()|2B] [ERROR_PACKET_ID=random()|2B] [HASH|1B] [LOW]`
 
@@ -448,7 +466,9 @@ Dieses Paket kann erst gesendet werden, nachdem ein vorheriges Paket fehlerfrei 
 
 `[HIGH] [FUNCTION=31|1B] [LF_HASH|1B] [PACKET_ID=random()|2B] [RCV_PACKET_ID=random()|2B] [HASH|1B] [LOW]`
 
----
+<div style="page-break-after: always;"></div>
+
+# 3.0 Schluss und Ergebnisse
 
 ## 3.1 Ergebnisse
 
@@ -456,15 +476,15 @@ Dieses Paket kann erst gesendet werden, nachdem ein vorheriges Paket fehlerfrei 
     Das Unterprotokoll zur Übertragung von roh-binären Daten konnte erfolgreich umgesetzt werden. Dabei wurden die Zustände HIGH und LOW zur Darstellung der Binärwerte 1 und 0 verwendet. Die Übertragung zeigte in ersten Tests eine stabile Kommunikation zwischen Sender und Empfänger.
 
 2.  Hashing, Verschlüsselung und Signaturprüfung
-    Die theoretischen Grundlagen zur Sicherstellung der Integrität und Authentizität von Nachrichten durch Hash-Signaturprüfung wurden niedergeschreiben.
+    Die theoretischen Grundlagen zur Sicherstellung der Integrität und Authentizität von Nachrichten durch Hash-Signaturprüfung wurden niedergeschrieben.
 
 3.  Übertragungsrate und Fehlererkennung
-    Erste Tests der Datenübertragung ergaben eine zuverlässige Erkennung von Signalstörungen, insbesondere bei verrauschtem Eingangssignal. Hierzu trugen sowohl die minimalen Zustandswechsel als auch die Verwendung eines Protokollrahmens für Fehlerkorrektur bei.
+    Erste Tests der Datenübertragung ergaben eine zuverlässige Erkennung von Signalstörungen, insbesondere bei "verrauschtem" Eingangssignal. Hierzu trugen sowohl die minimalen Zustandswechsel als auch die Verwendung eines Protokollrahmens für Fehlerkorrektur bei.
 
 4.  Dezentralisierte Gruppenzuweisung
     Die Datenstruktur der Gruppenkommunikation zeigte sich als skalierbar für mehrere Gruppen. Die theoretische Grenze von bis zu 65.536 Gruppen konnte im Code erfolgreich abgebildet werden.
 
-## 3.2 Ergebniss Diskussion
+## 3.2 Ergebnisdiskussion
 
 Die bisherigen Ergebnisse zeigen vielversprechende Ansätze zur Realisierung eines zuverlässigen, verschlüsselten und dezentralisierten Kommunikationssystems auf Basis einfacher Zustandsübertragung.
 
@@ -477,11 +497,13 @@ Die bisherigen Ergebnisse zeigen vielversprechende Ansätze zur Realisierung ein
 2. Verbesserungspotenziale
 
 - **Hauptprotokoll**: Die Implementierung der definierten Pakettypen ist essenziell, um alle Vorteile des Protokolls, wie etwa die verschlüsselte Kommunikation und Fehlerkorrektur, zu realisieren.
-- **Testumgebung**: Eine ausführlichere Testumgebung mit größerer Hardware-Variation wäre wünschenswert, um die Robustheit unter unterschiedlichen Bedingungen zu testen.
+- **Testumgebung**: Eine ausführlichere Testumgebung mit größerer Hardware-Variation wäre wünschenswert, um die Robustheit unter verschiedenen Bedingungen zu testen.
 
 3. Praktische Anwendungen
    Potenzielle Anwendungen des Systems reichen von drahtlosen Sensor-Netzwerken bis hin zur verschlüsselten Kommunikation für smarte Geräte. Die Möglichkeit, das Protokoll sowohl kabelgebunden als auch drahtlos zu betreiben, erhöht seine Anwendungsbreite.
-   Theoretisch kann das Protokoll auch bei allen anderen Objekten, die zwei Zustände annehmen können eingesetzt werden (z. B. Taschenlampen, Laser).
+   Theoretisch kann das Protokoll auch bei allen anderen Objekten, die zwei Zustände annehmen können, eingesetzt werden (z. B. Taschenlampen, Laser).
+
+<div style="page-break-after: always;"></div>
 
 ## 3.3 Ausblick
 
@@ -505,7 +527,7 @@ Das entwickelte Protokoll bietet eine vielversprechende Grundlage für sichere u
    Das Protokoll könnte durch neue Pakettypen erweitert werden, um zusätzliche Funktionen wie Priorisierung von Nachrichten oder erweiterte Steuerbefehle zu ermöglichen.
 
 6. **Post-Quantenverschlüsselung**:
-   Aktuell basiert das Protokoll auf post-quantenresistente Verschlüsselungsmethoden. Jedoch ist das Netzwerk aktuell noch auf symmetrischen Systemen basiert, dies bedeutet, dass Qantencomputer die Daten nicht entschlüsseln können, jedoch alle Schlüssel manuell ausgetauscht werden müssen. Dieses Probelm muss noch gelöst werden.
+   Aktuell basiert das Protokoll auf post-quantenresistente Verschlüsselungsmethoden. Jedoch ist das Netzwerk aktuell noch auf symmetrischen Systemen basiert, dies bedeutet, dass Qantencomputer die Daten nicht entschlüsseln können, jedoch alle Schlüssel manuell ausgetauscht werden müssen. Dieses Probelm muss noch durch post-quantenresistente asymmetrische Verschlüsselungsmethoden gelöst werden.
 
 7. **Entwicklung eines Messenger-Dienstes**:
    Ein Protokoll-spezifischer Messenger-Dienst könnte eine benutzerfreundliche Möglichkeit darstellen, das Potenzial der Technologie zu demonstrieren und praktische Anwendungsszenarien zu erforschen.
@@ -513,6 +535,8 @@ Das entwickelte Protokoll bietet eine vielversprechende Grundlage für sichere u
 ## 3.4 Fazit
 
 Mit der erfolgreichen Umsetzung des Unterprotokolls ist ein wesentlicher erster Schritt getan. Die nächsten Schritte eröffnen nicht nur neue technische Möglichkeiten, sondern auch den Weg zu vielfältigen Anwendungen in der realen Welt.
+
+<div style="page-break-after: always;"></div>
 
 ## 3.5 Quellen- und Literaturverzeichnis
 
