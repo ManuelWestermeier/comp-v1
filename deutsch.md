@@ -49,7 +49,7 @@ Die steigende Nachfrage nach sicheren Kommunikationsprotokollen für drahtlose o
 - Software:
   - Implementierung der Protokollregeln in C++ (PlatformIO mit dem Arduino-Framework).
 
-Schaltkreis skizze: (Lame = GPIO Pin (input); Schalter = GPIO Pin (output))
+Schaltkreis skizze: (Lampe = GPIO Pin (input); Schalter = GPIO Pin (output))
 <br/>
 <img src="schaltkreis.png" style="float: righ;">
 
