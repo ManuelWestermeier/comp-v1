@@ -10,6 +10,8 @@ Generell funktioniert das Protokoll auf jedem geteilten Medium (auch z.B. Licht,
 
 Die steigende Nachfrage nach sicheren Kommunikationsprotokollen für drahtlose oder kabelgebundene Netzwerke erfordert effiziente und skalierbare Lösungen. Wie kann ein robustes, kryptografisch sicheres Protokoll für den Einsatz in einfachen, aber vielseitigen Hardwareplattformen realisiert werden? Diese Arbeit bietet eine Antwort durch die Entwicklung eines Protokolls, das sowohl Datenintegrität als auch Vertraulichkeit sicherstellt.
 
+<div style="page-break-after: always;"></div>
+
 ## Inhalsverzeichnis
 
 - **1.0 Einleitung**
@@ -32,6 +34,8 @@ Die steigende Nachfrage nach sicheren Kommunikationsprotokollen für drahtlose o
   - **3.4 Fazit**
   - **3.5 Quellen- und Literaturverzeichnis**
   - **3.6 Umgang mit KI**
+
+<div style="page-break-after: always;"></div>
 
 ## 2.1 Vorgehensweise, Materialien und Methoden
 
