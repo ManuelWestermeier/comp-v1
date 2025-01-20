@@ -41,7 +41,7 @@ Generell funktioniert das Protokoll auf jedem geteilten Medium (auch z.B. Licht,
 
 ## 1.2 Motivation und Fragestellung
 
-Die steigende Nachfrage nach sicheren Kommunikationsprotokollen für drahtlose oder kabelgebundene Netzwerke erfordert effiziente und skalierbare Lösungen. Wie kann ein robustes, kryptografisch sicheres Protokoll für den Einsatz in einfachen, aber vielseitigen Hardwareplattformen realisiert werden? Diese Arbeit bietet eine Antwort durch die Entwicklung eines Protokolls, das sowohl Datenintegrität als auch Vertraulichkeit sicherstellt.
+Die zunehmende Nachfrage nach Kommunikationsprotokollen mit quantenresistenter Verschlüsselung für drahtlose und kabelgebundene Netzwerke verlangt nach effizienten und skalierbaren Lösungen. Wie kann ein robustes, kryptografisch sicheres Protokoll für den Einsatz in einfachen, aber vielseitigen Hardwareplattformen realisiert werden? Diese Arbeit bietet eine Antwort durch die Entwicklung eines Protokolls, das sowohl Datenintegrität als auch Vertraulichkeit sicherstellt.
 
 <div style="page-break-after: always;"></div>
 
@@ -106,7 +106,7 @@ Diese werden in eckigen Klammern visualisiert.
 
 ## 2.5 Grundlegende Datenübertragung
 
-**Byte-Paket**: Die Möglichkeit 1 Byte (8 Bits) und die isFollowing Flag (1Bit) zu übertragen.
+**Byte-Paket**: Ermöglicht die Übertragung eines Bytes (8 Bit) zusammen mit der isFollowing-Flag (1 Bit). Die isFollowing-Flag ist auf 0 gesetzt, wenn das Byte-Paket den Anfang einer Übertragung markiert, und auf 1, wenn das Byte-Paket einem vorherigen Paket folgt.
 
 ### Sender
 
@@ -114,7 +114,7 @@ In den eckigen Klammern ist der Wert. Dieser Wert zeigt den Zustand (`HIGH`/`LOW
 `HIGH` steht für "ja" oder "1", `LOW` steht für "nein" oder 0.
 
 - Am Anfang wird die "Leitung" auf `HIGH` gesetzt, was den Start des Bytepakets kennzeichnet.
-- Am Ende wird die "Leitung" auf `LOW` gesetzt, was dafür sorgt, dass die Leitung, bei dem nächsten Paket, am Anfang wieder auf `HIGH` gesetzt werden kann (Zustandsänderung).
+- Am Ende wird die "Leitung" auf `LOW` gesetzt, was dafür sorgt, dass die Leitung, bei dem nächsten Paket, am Anfang, wieder auf `HIGH` gesetzt werden kann (Zustandsänderung).
 
 #### Einfache Darstellung: `[NAME]` dauert ein Zeitintervall und speichert ein Bit (delayTime/50Microsekunden)
 
@@ -204,7 +204,7 @@ RawPacket rawReadByteWF(uint8_t pin, int delayTime)
 
     - Um ein Paket zu senden, stellt der Sender sicher, dass die Verbindung für eine festgelegte "maximale Sendezeit" (13 `*` delayTime) auf `LOW` bleibt.
       Da pro Byte-Paket mindestens einmal der Zustand `HIGH` übertragen werden muss (am Start) und das Senden eines Byte-Pakets ca. 12 `*` delayTime + 1 `*` delayTime (Puffer) dauert, kann man sagen, dass, wenn die Leitung 13 `*` delayTime (50 Microsekunden) lang auf `LOW` bleibt, nichts gesendet wurde
-      und der Nutzer mit dem sicheren "Paket lesen" anfangen kann.
+      und der Nutzer mit dem sicheren "Paket senden" anfangen kann.
     - Wenn die Verbindung während dieses Zeitraums auf `HIGH` wechselt, muss der Sender den Versuch wiederholen.
 
 ### Code Beispiel
@@ -239,33 +239,36 @@ void waitForBytePacketEnd()
 ### Code Beispiel
 
 ```cpp
-bool waitForBytePacketToSend(uint8_t pin)
+bool waitForBytePacketToSend()
 {
-    // den Zeitpunkt, an dem (connection.sendDelay * 13) lange nichts gesendet wurde + ein zufallsintervall zwischen 0 und (500 * connection.sendDelay)
-    auto maxRandomSendDelay = (500 * connection.sendDelay) - (messagesNotSend.size() * connection.sendDelay * 5);
+    // den Zeitpunkt, an dem (connection.sendDelay * 13) lange nichts gesendet wurde + ein zufallsintervall zwischen 0 und ((500 - (sucessFactor * 5)) * connection.sendDelay)
+    auto sucessFactor = messagesNotSend.size() + trysFailed;
+    auto maxRandomSendDelay = (500 - (sucessFactor * 5)) * connection.sendDelay;
     auto timeToWait = micros() + (connection.sendDelay * 13) + random(maxRandomSendDelay > 0 ? maxRandomSendDelay* : 0);
     while (true)
     {
         auto now = micros();
-        // wenn lange genug gewartet wurde, wird das Paket gesendet, die Leitung auf "HIGH" gesetzt und die Funktion returnt true = ge­glückt.
+        // wenn lange genug gewartet wurde, wird das Paket gesendet, die Leitung auf "HIGH" gesetzt und die Funktion returnt true (= ge­glückt).
         // durch das Setzen auf "HIGH" wird den anderen Benutzern mitgeteilt, dass sie ihre Pakete nicht mehr senden Können.
         if (now > timeToWait)
         {
-            digitalWrite(pin, HIGH);
+            digitalWrite(connection.outPin, HIGH);
+            trysFailed = 0;
             return true;
         }
         // wenn doch etwas gesendet (die Leitung auf "HIGH" gesetzt wird) wird, false = nicht ge­glückt returnt.
         else if (digitalRead(connection.inpPin) == HIGH)
         {
+            trysFailed++;
             return false;
         }
     }
 }
 
 // paket senden
-void send(uint8_t pin, const RawPacket &packet) {
-  waitForBytePacketToSend(pin);
-  sendPacket(pin, packet);
+void send(const RawPacket &packet) {
+  waitForBytePacketToSend();
+  sendPacket(packet);
 }
 ```
 
@@ -273,7 +276,7 @@ void send(uint8_t pin, const RawPacket &packet) {
 
 ## 2.7 Netzwerk-Hierarchie
 
-Das **NETZWERK** ist die physische Verbindung, die mit einer Kabelverbindung, 433 MHz RF-Modulen oder einer physikalischen Verbindung jeder Art, die mindestens zwei Zustände aufweisen muss, (z.B. Licht) hergestellt wird.
+Das **NETZWERK** ist die physische Verbindung, die mit einer Kabelverbindung, 433 MHz RF-Modulen oder einer physischen Verbindung jeder Art, die mindestens zwei Zustände aufweisen muss, (z.B. Licht an/aus) hergestellt wird.
 
 Die **GRUPPEN** sind virtuelle Netzwerke, die eine Verschlüsselung für eine sichere Kommunikation implementieren. Es kann bis zu **65.536 GRUPPEN** geben.
 Benutzer innerhalb einer GRUPPE können den Verbindungsprozess verwalten, Daten senden oder bis zu **65.536 BENUTZER** einladen.  
@@ -331,7 +334,7 @@ Diese Hierarchie gewährleistet eine strukturierte Organisation der Benutzer inn
    - den ursprünglichen zufälligen Wert (`SIGN_VALUE`)
    - den nächsten gehashten zufälligen Wert (`NEXT_SIGN_VALUE_HASH`), um die nächste Nachricht auch signieren zu können. (Diese muss im gleichen Paket gesendet werden.)
 
-Benutzer, die überprüfen wollen, ob eine Nachricht von dem richtigen Benutzer gesendet wurde, können den HASH des gesendeten Werts `SIGN_VALUE` mit dem Hash `SIGN_VALUE_HASH` abgleichen. Wenn die beiden Hashes äquivalent sind, ist der Sender sicher der echte Sender.
+Benutzer, die überprüfen wollen, ob eine Nachricht von dem richtigen Benutzer gesendet wurde, können den Hash des gesendeten Werts `SIGN_VALUE` mit dem Hash `SIGN_VALUE_HASH` abgleichen. Wenn die beiden Hashes äquivalent sind, ist der Sender sicher der echte Sender.
 
 Da eine Hashfunktion eine Einwegfunktion ist, kann kein übereinstimmender Wert ausgängig von dem Hash generiert werden (außser durch Raten).
 Dies stellt sicher, dass jede Nachricht eindeutig verifizierbar ist.
@@ -345,7 +348,7 @@ Das Format lautet:
 
 ## 2.9 Pakettypen
 
-1. **LF_HASH**: der Hash aus Längenvariablen und der Funktion
+1. **LF_HASH**: der Hash aus Längenvariablen und der Funktion `[2Bit Funktionshash + 6Bit Längenhash]`
 2. **HASH**: der Hash aus dem gesamten Paket
 
 ### Autorisieren
@@ -386,7 +389,7 @@ Alle Benutzer in der Gruppe können auf dieses Paket antworten, aber der erste B
 
 Bestätigt die Existenz der Gruppe.
 
-`[HIGH] [FUNCTION=4|1B] [LF_HASH|1B] [PACKET_ID=random()|2B] [GROUP_ID|2B] [CONNECT_ID|2B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [CURRENT_SALT|4B] [ERROR_IDENTIFYER=random()|2B] [SALT_MODIFIER_PER_PACKET=(MODIFIER + VALUE)|2B] [HASH|4B] [LOW]`
+`[HIGH] [FUNCTION=4|1B] [LF_HASH|1B] [PACKET_ID=random()|2B] [GROUP_ID|2B] [CONNECT_ID|2B] /* Verschlüsselte Daten beginnen hier */ [NEW_USER_ID|2B] [GLOBAL_CONSTANT=111] [CURRENT_SALT|4B] [ERROR_IDENTIFYER=random()|2B] [SALT_MODIFIER_PER_PACKET=(MODIFIER + VALUE)|2B] [HASH|4B] [LOW]`
 
 ##### NEIN
 
@@ -436,7 +439,7 @@ Sendet Daten an einen bestimmten Benutzer.
 
 Sendet Daten an mehrere spezifische Benutzer.
 
-`[HIGH] [FUNCTION=11|1B] [USERS_LENGTH=UL|2B] [DATA_LENGTH=DL|1B] [LF_HASH|1B] [PACKET_ID=random()|2B] [GROUP_ID|2B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [USER_DESTINATIONS|UL*2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|6B] [DATA|DL*1B] [LOW]`
+`[HIGH] [FUNCTION=11|1B] [USERS_LENGTH=UL|2B] [DATA_LENGTH=DL|1B] [LF_HASH|1B] [PACKET_ID=random()|2B] [GROUP_ID|2B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|6B] [USER_DESTINATIONS|UL*2B]  [DATA|DL*1B] [LOW]`
 
 #### **12. BROADCAST INNER GROUP**
 
@@ -462,11 +465,18 @@ Wenn der Hash nicht mit den gesendeten Daten übereinstimmt, wird dieses Paket g
 
 `[HIGH] [FUNCTION=30|1B] [LF_HASH|1B] [PACKET_ID=random()|2B] [ERROR_PACKET_ID=random()|2B] [HASH|1B] [LOW]`
 
-#### **31. PACKET RECIEVED**
+#### **31. PACKET IS CORRUPTED**
+
+Als Kennzeichen, wenn ein Paket von einem Hacker gesendet wurde.
+Dieses Paket kann auf jedes Paket folgen, es macht Pakete rückwirkend ungültig.
+
+`[HIGH] [FUNCTION=31|1B] [LF_HASH|1B] [PACKET_ID=random()|2B] [HACKER_PACKET_ID=random()|2B] [HASH|1B] [LOW]`
+
+#### **32. PACKET RECIEVED**
 
 Dieses Paket kann erst gesendet werden, nachdem ein vorheriges Paket fehlerfrei übermittelt und erfolgreich empfangen wurde.
 
-`[HIGH] [FUNCTION=31|1B] [LF_HASH|1B] [PACKET_ID=random()|2B] [RCV_PACKET_ID=random()|2B] [HASH|1B] [LOW]`
+`[HIGH] [FUNCTION=32|1B] [LF_HASH|1B] [PACKET_ID=random()|2B] [RCV_PACKET_ID=random()|2B] [HASH|1B] [LOW]`
 
 <div style="page-break-after: always;"></div>
 
@@ -474,35 +484,35 @@ Dieses Paket kann erst gesendet werden, nachdem ein vorheriges Paket fehlerfrei 
 
 ## 3.1 Ergebnisse
 
-1.  Implementierung des Unterprotokolls
+1.  **Implementierung des Unterprotokolls**:
     Das Unterprotokoll zur Übertragung von roh-binären Daten konnte erfolgreich umgesetzt werden. Dabei wurden die Zustände HIGH und LOW zur Darstellung der Binärwerte 1 und 0 verwendet. Die Übertragung zeigte in ersten Tests eine stabile Kommunikation zwischen Sender und Empfänger.
 
-2.  Hashing, Verschlüsselung und Signaturprüfung
+2.  **Hashing, Verschlüsselung und Signaturprüfung**:
     Die theoretischen Grundlagen zur Sicherstellung der Integrität und Authentizität von Nachrichten durch Hash-Signaturprüfung wurden niedergeschrieben.
 
-3.  Übertragungsrate und Fehlererkennung
+3.  **Übertragungsrate und Fehlererkennung**:
     Erste Tests der Datenübertragung ergaben eine zuverlässige Erkennung von Signalstörungen, insbesondere bei "verrauschtem" Eingangssignal. Hierzu trugen sowohl die minimalen Zustandswechsel als auch die Verwendung eines Protokollrahmens für Fehlerkorrektur bei.
 
-4.  Dezentralisierte Gruppenzuweisung
+4.  **Dezentralisierte Gruppenzuweisung**:
     Die Datenstruktur der Gruppenkommunikation zeigte sich als skalierbar für mehrere Gruppen. Die theoretische Grenze von bis zu 65.536 Gruppen konnte im Code erfolgreich abgebildet werden.
 
 ## 3.2 Ergebnisdiskussion
 
 Die bisherigen Ergebnisse zeigen vielversprechende Ansätze zur Realisierung eines zuverlässigen, verschlüsselten und dezentralisierten Kommunikationssystems auf Basis einfacher Zustandsübertragung.
 
-1. Erfolgreiche Aspekte
+1. **Erfolgreiche Aspekte**:
 
 - **Skalierbarkeit**: Die Gruppe-Zuordnung kann für verschiedene Anwendungen flexibel genutzt werden.
 - **Grundstruktur**: Das Unterprotokoll bewies sich als stabil und erweiterbar, was eine gute Basis für das Hauptprotokoll schafft.
 - **Einfache Signalübertragung**: Die auf zwei Zuständen basierende Codierung erwies sich als robust, selbst bei Signalrauschen.
 
-2. Verbesserungspotenziale
+2. **Verbesserungspotenziale**:
 
 - **Hauptprotokoll**: Die Implementierung der definierten Pakettypen ist essenziell, um alle Vorteile des Protokolls, wie etwa die verschlüsselte Kommunikation und Fehlerkorrektur, zu realisieren.
 - **Testumgebung**: Eine ausführlichere Testumgebung mit größerer Hardware-Variation wäre wünschenswert, um die Robustheit unter verschiedenen Bedingungen zu testen.
 
-3. Praktische Anwendungen
-   Potenzielle Anwendungen des Systems reichen von drahtlosen Sensor-Netzwerken bis hin zur verschlüsselten Kommunikation für smarte Geräte. Die Möglichkeit, das Protokoll sowohl kabelgebunden als auch drahtlos zu betreiben, erhöht seine Anwendungsbreite.
+3. **Praktische Anwendungen**:
+   Potenzielle Anwendungen des Systems reichen von drahtlosen Sensor-Netzwerken bis hin zu der verschlüsselten Kommunikation für smarte Geräte. Die Möglichkeit, das Protokoll sowohl kabelgebunden als auch drahtlos zu betreiben, erhöht seine Anwendungsbreite.
    Theoretisch kann das Protokoll auch bei allen anderen Objekten, die zwei Zustände annehmen können, eingesetzt werden (z. B. Taschenlampen, Laser).
 
 <div style="page-break-after: always;"></div>
@@ -542,10 +552,10 @@ Mit der erfolgreichen Umsetzung des Unterprotokolls ist ein wesentlicher erster 
 
 ## 3.5 Quellen- und Literaturverzeichnis
 
-1. https://docs.espressif.com/projects/arduino-esp32/en/latest/api/gpio.html
-2. https://de.wikipedia.org/wiki/Hashfunktion
-3. https://en.wikipedia.org/wiki/Encryption
-4. https://de.wikipedia.org/wiki/Signatur
+1. GPIO Pins (Leiting auf `HIGH` oder `LOW` setzen) https://docs.espressif.com/projects/arduino-esp32/en/latest/api/gpio.html
+2. Hash-Eingwefunktionen https://de.wikipedia.org/wiki/Hashfunktion
+3. Verschlüsselung https://en.wikipedia.org/wiki/Encryption
+4. Siganturen https://de.wikipedia.org/wiki/Digitale_Signatur
 
 ## 3.6 Umgang mit KI
 
