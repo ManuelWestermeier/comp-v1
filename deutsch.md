@@ -344,7 +344,7 @@ Diese Hierarchie gewährleistet eine strukturierte Organisation der Benutzer inn
 
 Benutzer, die überprüfen wollen, ob eine Nachricht von dem richtigen Benutzer gesendet wurde, können den Hash des gesendeten Werts `SIGN_VALUE` mit dem Hash `SIGN_VALUE_HASH` abgleichen. Wenn die beiden Hashes äquivalent sind, ist der Sender sicher der echte Sender.
 
-Da eine Hashfunktion eine Einwegfunktion ist, kann kein übereinstimmender Wert ausgängig von dem Hash generiert werden (außser durch Raten).
+Da eine Hashfunktion eine Einwegfunktion ist, kann kein übereinstimmender Wert ausgängig von dem Hash generiert werden (außer durch Raten).
 Dies stellt sicher, dass jede Nachricht eindeutig verifizierbar ist.
 
 Das Format lautet:
