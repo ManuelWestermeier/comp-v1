@@ -10,6 +10,10 @@
   }
 </style>
 
+<img src="deckblatt.jpg" style="float: righ;">
+
+<div style="page-break-after: always;"></div>
+
 ## Inhalsverzeichnis
 
 - **1 Einleitung**
@@ -57,7 +61,7 @@ Die zunehmende Nachfrage nach Kommunikationsprotokollen mit quantenresistenter V
   - Ein Mikrocontroller (ESP-32) für die Signalverarbeitung.
   - Ein Kabel wird zur Datenübertragung benötigt (plus Erdungskabel).
 - Software:
-  - Implementierung der Protokollregeln in C++ (PlatformIO mit dem Arduino-Framework).
+  - Implementierung der Protokollregeln in C++ (Platform IO mit dem Arduino-Framework).
 
 Schaltkreis skizze: (Lampe = GPIO Pin (input); Schalter = GPIO Pin (output))
 <br/>
