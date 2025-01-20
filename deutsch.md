@@ -550,7 +550,7 @@ Das entwickelte Protokoll bietet eine vielversprechende Grundlage für sichere u
    Aktuell basiert das Protokoll auf post-quantenresistente Verschlüsselungsmethoden. Jedoch ist das Netzwerk aktuell noch auf symmetrischen Systemen basiert, dies bedeutet, dass Qantencomputer die Daten nicht entschlüsseln können, jedoch alle Schlüssel manuell ausgetauscht werden müssen. Dieses Probelm muss noch durch post-quantenresistente asymmetrische Verschlüsselungsmethoden gelöst werden.
 
 7. **Entwicklung eines Messenger-Dienstes**:
-   Ein Protokoll-spezifischer Messenger-Dienst könnte eine benutzerfreundliche Möglichkeit darstellen, das Potenzial der Technologie zu demonstrieren und praktische Anwendungsszenarien zu erforschen.
+   Ein protokollspezifischer Messenger-Dienst könnte eine benutzerfreundliche Möglichkeit darstellen, das Potenzial der Technologie zu demonstrieren und praktische Anwendungsszenarien zu erforschen.
 
 ## 3.4 Fazit
 
@@ -569,3 +569,13 @@ Mit der erfolgreichen Umsetzung des Unterprotokolls ist ein wesentlicher erster 
 
 Die Nutzung der KI ChatGPT ist mit einer Autokorrektur vergleichbar.
 Sie wurde ausschließlich dazu eingesetzt, geschriebene Texte zu verbessern und Rechtschreibfehler zu korrigieren.
+
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+Kontakt: Manuel.Westermeier@gmx.de
+<br>
+Signierung: 2bcf5f3d236860434f803bbac8c85213c6afe1ba9b96530304fc76875381f5a0
