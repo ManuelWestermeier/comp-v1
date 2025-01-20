@@ -63,9 +63,9 @@ Die zunehmende Nachfrage nach Kommunikationsprotokollen mit quantenresistenter V
 - Software:
   - Implementierung der Protokollregeln in C++ (Platform IO mit dem Arduino-Framework).
 
-Schaltkreis skizze: (Lampe = GPIO Pin (input); Schalter = GPIO Pin (output))
+<!-- Schaltkreis skizze: (Lampe = GPIO Pin (input); Schalter = GPIO Pin (output))
 <br/>
-<img src="schaltkreis.png" style="float: righ;">
+<img src="schaltkreis.png" style="float: righ;"> -->
 
 ## 2.2 Hintergrund und theoretische Grundlagen
 
@@ -403,6 +403,8 @@ Bestätigt die Existenz der Gruppe.
 
 Keine Antwort, wenn die Gruppe nicht vorhanden ist (Timeout: 1-2 Sekunden).
 
+<div style="page-break-after: always;"></div>
+
 #### **5. JOINED**
 
 Bestätigt den erfolgreichen Beitritt zur Gruppe.
@@ -442,6 +444,8 @@ Weist darauf hin, wenn ein Hacker fälschlicherweise behauptet, ein Benutzer hab
 Sendet Daten an einen bestimmten Benutzer.
 
 `[HIGH] [FUNCTION=10|1B] [DATA_LENGTH=L|1B] [LF_HASH|1B] [PACKET_ID=random()|2B] [GROUP_ID|2B] /* Verschlüsselte Daten beginnen hier */ [USER_ID|2B] [USER_DESTINATION|2B] [LAST_SIGN_VALUE|4B] [CURRENT_SIGN_HASH|4B] [HASH|6B] [DATA|L*1B] [LOW]`
+
+<div style="page-break-after: always;"></div>
 
 #### **11. SEND TO MULTIPLE USERS**
 
