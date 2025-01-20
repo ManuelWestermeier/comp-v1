@@ -1,5 +1,9 @@
 # MW-Dezentrales Netzwerk- und Kommunikationsprotokoll
 
+<title>
+  MW-Dezentrales Netzwerk- und Kommunikationsprotokoll
+</title>
+
 <style>
   body {
     font-size: 10px;
@@ -8,12 +12,12 @@
 
 ## Inhalsverzeichnis
 
-- **1.0 Einleitung**
+- **1 Einleitung**
   - **1.1 Fachliche Kurzfassung**
   - **1.2 Motivation und Fragestellung**
-- **2.0 Hauptteil**
-  - **1.1 Vorgehensweise, Materialien und Methoden**
-  - **1.2 Hintergrund und theoretische Grundlagen** - Die informatischen und kryptographischen Grundprinzipien
+- **2 Hauptteil**
+  - **2.1 Vorgehensweise, Materialien und Methoden**
+  - **2.2 Hintergrund und theoretische Grundlagen** - Die informatischen und kryptographischen Grundprinzipien
   - **2.3 Signalzustände** - Wie werden die "Einsen und Nullen" gesendet?
   - **2.4 Paketformat** - Was ist ein Paket?
   - **2.5 Grundlegende Datenübertragung** - Bytes/Zahlen senden und empfangen?
@@ -21,7 +25,7 @@
   - **2.7 Netzwerk-Hierarchie** - Wie ist das Netzwerk strukturiert?
   - **2.8 Signierung** - Wie kann sich jeder im Netzwerk sicher sein, dass ein Paket wirklich von einem bestimmten Benutzer gesendet wurde?
   - **2.9 Pakettypen** - Wie sind die Pakete aufgebaut und wie funktioniert das Netzwerkprotokoll?
-- **3.0 Schluss und Ergebnisse**
+- **3 Schluss und Ergebnisse**
   - **3.1 Ergebnisse**
   - **3.2 Ergebnis Diskussion**
   - **3.3 Ausblick**
@@ -31,7 +35,7 @@
 
 <div style="page-break-after: always;"></div>
 
-# 1.0 Einleitung
+# 1 Einleitung
 
 ## 1.1 Fachliche Kurzfassung
 
@@ -45,7 +49,7 @@ Die zunehmende Nachfrage nach Kommunikationsprotokollen mit quantenresistenter V
 
 <div style="page-break-after: always;"></div>
 
-# 2.0 Hauptteil
+# 2 Hauptteil
 
 ## 2.1 Vorgehensweise, Materialien und Methoden
 
@@ -480,7 +484,7 @@ Dieses Paket kann erst gesendet werden, nachdem ein vorheriges Paket fehlerfrei 
 
 <div style="page-break-after: always;"></div>
 
-# 3.0 Schluss und Ergebnisse
+# 3 Schluss und Ergebnisse
 
 ## 3.1 Ergebnisse
 
