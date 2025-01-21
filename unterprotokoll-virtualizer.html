@@ -46,6 +46,21 @@
 
     <p class="result-text">Ergebnis: <code id="result-text"></code></p>
 
+    <p>
+        Messung:
+    <ol>
+        <li>
+            warten, bis die Leitung auf HIGH geht
+        </li>
+        <li>
+            1.5 Intervalle warten
+        </li>
+        <li>
+            Bit lesen und ein Intervall warten
+        </li>
+    </ol>
+    </p>
+
     <canvas id="output"></canvas>
 
     <script>
@@ -54,40 +69,62 @@
         canvas.width = canvas.clientWidth;
         canvas.height = canvas.clientHeight;
 
-        document.getElementById('send').addEventListener('click', () => {
+        const update = () => {
             const isFollowing = document.getElementById('flag').checked;
             const value = parseInt(document.getElementById('value').value);
 
             // Dynamische Ergebnisanzeige
-            let result = '[HIGH] ';
-            result += `[${isFollowing ? 'HIGH' : 'LOW'}] `;
+            let result = '[HIGH=START] ';
+            result += `[${isFollowing ? 'HIGH' : 'LOW'}=IS_FOLLOWING] `;
 
             // Bit-Darstellung des Werts (LSB-first)
             const bits = [];
             for (let i = 0; i < 8; i++) {
                 bits.push((value & (1 << i)) !== 0 ? '[HIGH]' : '[LOW]');
             }
-            result += bits.join(' ') + '[LOW]';
+            result += bits.join(' ') + '[LOW=END]';
 
             // Setze den Ergebnis-Text
             document.getElementById('result-text').textContent = result;
 
             // Signal im Canvas aktualisieren
             updateCanvas(isFollowing, value);
-        });
+        }
+
+        update();
+
+        document.getElementById('send').addEventListener('click', update);
+        document.getElementById('value').addEventListener('input', update);
+        document.getElementById('flag').addEventListener('input', update);
 
         function updateCanvas(isFollowing, value) {
             // Canvas leeren
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            const gridWidth = canvas.width / 10;
-            let xPos = 10;
+            const gridWidth = canvas.width / 11;
+            let xPos = 0;
 
             function drawSignal(label, state) {
+                ctx.strokeStyle = "blue";
+                ctx.beginPath();
+                ctx.moveTo(xPos, canvas.height);
+                ctx.lineTo(xPos, 0);
+                ctx.stroke();
+
+                if (xPos != 0) {
+                    ctx.strokeStyle = "gold";
+                    ctx.beginPath();
+                    ctx.moveTo(xPos + gridWidth / 2, canvas.height / 10);
+                    ctx.lineTo(xPos + gridWidth / 2, 0);
+                    ctx.stroke();
+                }
+
                 ctx.strokeStyle = state ? 'green' : 'red';
                 ctx.beginPath();
-                ctx.moveTo(xPos, canvas.height / 2);
-                ctx.lineTo(xPos + gridWidth, state ? canvas.height / 3 : canvas.height / 2 + 30);
+                ctx.moveTo(xPos, state ? canvas.height / 2 : canvas.height / 2 + 50);
+                ctx.lineTo(xPos + gridWidth, state ? canvas.height / 2 : canvas.height / 2 + 50);
                 ctx.stroke();
 
                 ctx.fillStyle = 'black';
@@ -110,12 +147,19 @@
             // Render LOW Endsignal
             drawSignal('END', false);
 
+            ctx.strokeStyle = "gold";
+            ctx.beginPath();
+            ctx.moveTo(1, 0);
+            ctx.lineTo(1, canvas.height / 10);
+            ctx.stroke();
+
             // Beschreibung hinzufügen
             ctx.fillStyle = 'black';
-            ctx.fillText('Die Darstellung zeigt die Sequenz des Signals über Zeit.', 10, canvas.height - 20);
-        }
 
-        updateCanvas(true, 10);
+            ctx.fillText('Die Darstellung zeigt die Sequenz des Signals über Zeit.', 10, canvas.height - 60);
+            ctx.fillText('Die blauen Linien sind die Zeitintervalle.', 10, canvas.height - 40);
+            ctx.fillText('Die goldenen Linien sind die Lesestellen.', 10, canvas.height - 20);
+        }
     </script>
 </body>
 
