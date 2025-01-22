@@ -93,9 +93,13 @@
 
         update();
 
-        document.getElementById('send').addEventListener('click', update);
+        document.getElementById('send').addEventListener('click', () => {
+            canvas.scrollIntoView({ behavior: "smooth", block: "center", });
+            update();
+        });
         document.getElementById('value').addEventListener('input', update);
         document.getElementById('flag').addEventListener('input', update);
+        document.getElementById('intervall').addEventListener('input', update);
 
         function updateCanvas(isFollowing, value) {
             // Canvas leeren
@@ -128,7 +132,8 @@
                 ctx.stroke();
 
                 ctx.fillStyle = 'black';
-                ctx.fillText(label, xPos + gridWidth / 4, canvas.height / 3 - 10);
+                ctx.fillText(label, xPos + 5, canvas.height / 3 - 25);
+                ctx.fillText(`${xPos / gridWidth * parseInt(document.getElementById("intervall").value)}ms`, xPos + 5, canvas.height / 3 - 10);
                 xPos += gridWidth;
             }
 
